@@ -4,7 +4,7 @@ import java.util.Date;
 
 public class Gold extends Humain {
 	private final int PARTIES_MAX = 10;
-	private int coins;
+	//private int coins;
 	
 	public Gold(String pseudo, String email, Date dateNaissance, String console) {
 		super(pseudo, email, dateNaissance, console);

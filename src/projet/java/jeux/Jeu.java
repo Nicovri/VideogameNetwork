@@ -1,6 +1,10 @@
 package projet.java.jeux;
 
 import java.time.Year;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.List;
+import java.util.SortedSet;
 
 public class Jeu {
 	private int rang;
@@ -31,6 +35,10 @@ public class Jeu {
 		this.autresVentes = autresVentes;
 		this.ventesTotales = ventesTotales;
 	}
+	
+	public int getRang() { return this.rang; }
+	public String getPlateforme() { return this.plateforme; }
+	public String getGenre() { return this.genre; }
 	
 	public void setRang(int rang) { this.rang = rang; }
 	public void setNom(String nom) { this.nom = nom; }
@@ -63,5 +71,30 @@ public class Jeu {
 		StringBuilder b = new StringBuilder();
 		b.append(this.rang + ". " + this.nom);
 		return b.toString();
+	}
+	
+	// Il est sûrement possible de factoriser ces deux méthodes
+	public static Collection<Jeu> triParMachine(Collection<Jeu> jeux, SortedSet<String> plateformes) {
+		List<Jeu> jeuxTries = new ArrayList<>();
+		for(String machine : plateformes) {
+			for(Jeu jeu : jeux) {
+				if(jeu.plateforme.equals(machine)) {
+					jeuxTries.add(jeu);
+				}
+			}
+		}
+		return jeuxTries;
+	}
+	
+	public static Collection<Jeu> triParGenre(Collection<Jeu> jeux, SortedSet<String> genres) {
+		List<Jeu> jeuxTries = new ArrayList<>();
+		for(String genre : genres) {
+			for(Jeu jeu : jeux) {
+				if(jeu.genre.equals(genre)) {
+					jeuxTries.add(jeu);
+				}
+			}
+		}
+		return jeuxTries;
 	}
 }

@@ -4,11 +4,12 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
+import projet.java.jeux.Jeu;
+
 public class Enfant extends Humain {
 	private String[] parents = new String[]{"", ""};
-	//private int amisMaxEnfant = 10;
-	private final int AMIS_MAX = 10;
 	private String futurStatut;
+	private final int AMIS_MAX = 10;
 	private final int JEUX_MAX = 30;
 	private final int PARTIES_MAX = 3;
 	
@@ -64,5 +65,19 @@ public class Enfant extends Humain {
 			}
 		}
 		return amiSupprime;
+	}
+	
+	@Override
+	public boolean acheterJeu(Jeu j) {
+		boolean jeuAchete = super.acheterJeu(j);
+		if(jeuAchete) {
+			if(this.jeux.size() > this.JEUX_MAX) {
+				this.jeux.remove(j);
+				System.out.println("Plus de place dans la collection de jeux...");
+				return false;
+				// ExceptionPlusDePlaceCollectionJeux
+			}
+		}
+		return jeuAchete;
 	}
 }

@@ -3,7 +3,10 @@ package projet.java.app;
 import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.util.Collection;
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Scanner;
@@ -412,6 +415,10 @@ public class Menus {
 			resultat.setSecond(joueurActif);
 			return resultat;
 		}
+		
+		public static Pair<Options, String> offrirJeu() {
+			
+		}
 	}
 	
 	public static class Consoles {
@@ -447,6 +454,7 @@ public class Menus {
 			} else {
 				System.out.println("Vous possédez dèjà cette console.");
 				System.out.println("Annulation...");
+				System.out.println("Opération annulée.");
 			}
 			resultat.setFirst(Options.AFFICHAGE_PROFIL);
 			resultat.setSecond(joueurActif);
@@ -486,6 +494,7 @@ public class Menus {
 			} else {
 				System.out.println("Vous ne possédez pas cette console.");
 				System.out.println("Annulation...");
+				System.out.println("Opération annulée.");
 			}
 			resultat.setFirst(Options.AFFICHAGE_PROFIL);
 			resultat.setSecond(joueurActif);
@@ -518,13 +527,159 @@ public class Menus {
 		}
 	}
 	
-	public static class Boutique {}
+	public static class CollectionJeux {
+		private static void afficherDetailsJeuSelonRang(Collection<Jeu> jeux, int rang) {
+			for(Jeu jeu : jeux) {
+				if(jeu.getRang() == rang) {
+					System.out.println(Menus.SEPARATEUR);
+					System.out.println(jeu.toString());
+					System.out.println(Menus.SEPARATEUR);
+				}
+			}
+		}
+		
+		public static Pair<Options, String> afficherListeJeux(Collection<Jeu> jeux, SortedSet<String> plateformes, SortedSet<String> genres, String joueurActif) {
+			System.out.print(Menus.SEPARATEUR);
+			System.out.print("1. Jeux classés par machine\n2. Jeux classés par genre");
+			System.out.print(Menus.SEPARATEUR);
+			System.out.print("Votre choix : ");
+			Scanner sc = new Scanner(System.in);
+			
+			String choix = sc.nextLine();
+			Collection<Jeu> jeuxTries;
+			Object[] arrayJeuxTries;
+			
+			if(jeux.isEmpty()) {
+				System.out.println("Aucuns jeux dans votre collection...");
+				return new Pair<>(Options.AFFICHAGE_PROFIL, joueurActif);
+			}
+			
+			switch(choix) {
+			case "1":
+				System.out.println("avant");
+				jeuxTries = Jeu.triParMachine(jeux, plateformes);
+				arrayJeuxTries = jeuxTries.toArray();
+				for(int i = 0; i < jeuxTries.size(); i++) {
+					if(i == 0) {
+						System.out.println(((Jeu) arrayJeuxTries[0]).getPlateforme());
+					} else {
+						if(!((Jeu) arrayJeuxTries[i]).getPlateforme().equals(((Jeu) arrayJeuxTries[i - 1]).getPlateforme())) {
+							System.out.println(((Jeu) arrayJeuxTries[i]).getPlateforme());
+						}
+					}
+					System.out.println(((Jeu) arrayJeuxTries[i]).affichageRapide());
+				}
+				System.out.println("après");
+				break;
+			case "2":
+				jeuxTries = Jeu.triParGenre(jeux, genres);
+				arrayJeuxTries = jeuxTries.toArray();
+				for(int i = 0; i < jeuxTries.size(); i++) {
+					if(i == 0) {
+						System.out.println(((Jeu) arrayJeuxTries[0]).getGenre());
+					} else {
+						if(!((Jeu) arrayJeuxTries[i]).getGenre().equals(((Jeu) arrayJeuxTries[i - 1]).getGenre())) {
+							System.out.println(((Jeu) arrayJeuxTries[i]).getGenre());
+						}
+					}
+					System.out.println(((Jeu) arrayJeuxTries[i]).affichageRapide());
+				}
+				break;
+			default:
+				System.out.println("Veuillez choisir une des options ci-dessous.");
+				return new Pair<>(Options.COLLECTION, joueurActif);
+			}
+			resultat.setFirst(Options.DETAILS_JEU_PERSO);
+			resultat.setSecond(joueurActif);
+			return resultat;
+		}
+		
+		public static Pair<Integer, Pair<Options, String>> afficherDetailsJeu(Collection<Jeu> jeux, String joueurActif) {
+			System.out.println("\n" + Menus.CHOIX_QUITTER);
+			System.out.print("Choisissez le rang du jeu pour afficher ses détails : ");
+			Scanner sc = new Scanner(System.in);
+			String choix = sc.nextLine();
+			
+			while(!choix.matches("\\d+") && !choix.equals("Q")) {
+				System.out.println("Veuillez choisir une option disponible.");
+				System.out.println("\n" + Menus.CHOIX_QUITTER);
+				System.out.print("Choisissez le rang du jeu pour afficher ses détails : ");
+				sc = new Scanner(System.in);
+				choix = sc.nextLine();
+			}
+			
+			int indexJeu;
+			if(choix.matches("\\d+")) {
+				indexJeu = Integer.parseInt(choix);
+				Menus.CollectionJeux.afficherDetailsJeuSelonRang(jeux, indexJeu);
+				resultat.setFirst(Options.DETAILS_JEU_PERSO);
+				resultat.setSecond(joueurActif);
+			} else {
+				indexJeu = 0;
+				resultat.setFirst(Options.AFFICHAGE_PROFIL);
+				resultat.setSecond(joueurActif);
+			}
+			return new Pair<>(indexJeu, resultat);
+		}
+	}
 	
-	public static class Collection {}
+	public static class Boutique {
+		private static Jeu TrouverJeuSelonRang(Collection<Jeu> jeux, int rang) {
+			for(Jeu jeu : jeux) {
+				if(jeu.getRang() == rang) {
+					return jeu;
+				}
+			}
+			return null; // throw ExceptionJeuNonTrouve
+		}
+		
+		public static Pair<Options, String> acheterJeu(Map<String, Joueur> joueurs, List<Jeu> jeux, SortedSet<String> plateformes, SortedSet<String> genres, String joueurActif) {
+			resultat = Menus.CollectionJeux.afficherListeJeux(jeux, plateformes, genres, joueurActif);
+			if(resultat.getFirst().equals(Options.DETAILS_JEU_PERSO)) {
+				Pair<Integer, Pair<Options, String>> res = Menus.CollectionJeux.afficherDetailsJeu(jeux, joueurActif);
+				int indexJeu = res.getFirst();
+				resultat = res.getSecond();
+				if(resultat.getFirst().equals(Options.DETAILS_JEU_PERSO)) {
+					// Achat du jeu
+					System.out.println(Menus.CHOIX_OUI);
+					System.out.println(Menus.CHOIX_NON);
+					System.out.print("\nVoulez-vous acheter ce jeu ? : ");
+					Scanner sc = new Scanner(System.in);
+					String choix = sc.nextLine();
+					switch(choix) {
+					case "O":
+						System.out.println("Achat du jeu...");
+						boolean estAchete = joueurs.get(joueurActif).acheterJeu(Menus.Boutique.TrouverJeuSelonRang(jeux, indexJeu));
+						if(estAchete) {							
+							System.out.println("Jeu acheté et ajouté à votre liste !");
+						} else {
+							System.out.println("Annulation...");
+							System.out.println("Opération annulée.");
+						}
+						resultat.setFirst(Options.COLLECTION);
+						break;
+					case "N":
+						break;
+					default:
+						System.out.println("Veuillez choisir une option disponible.");
+						resultat.setFirst(Options.BOUTIQUE);
+						resultat.setSecond(joueurActif);
+						break;
+					}
+				}
+			}
+			return resultat;
+		}
+		
+	}	
 	
 	public static class PartieMulti {
 		private Jeu jeu;
 		private Joueur[] joueurs = new Joueur[2];
+		
+		private static Pair<Options, String> afficherListeAmis() {
+			
+		}
 	}
 	
 	public static class Statistiques {}

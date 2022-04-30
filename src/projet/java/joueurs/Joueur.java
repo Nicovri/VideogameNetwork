@@ -38,6 +38,8 @@ public abstract class Joueur {
 	protected String getEmail() { return this.email; }
 	protected Date getDateNaissance() { return this.dateDeNaissance; }
 	
+	public Set<Jeu> getJeux() { return this.jeux; }
+	
 	public String profilPublic() {
 		return this.pseudo;
 	}
@@ -80,6 +82,26 @@ public abstract class Joueur {
 			}
 		}
 		return true;
+	}
+	
+	// ExceptionJeuNonTrouve
+	public boolean acheterJeu(Jeu j) {
+		if(j != null) {
+			int tailleAvant = this.jeux.size();
+			this.jeux.add(j);
+			int tailleApres = this.jeux.size();
+			if(tailleAvant == tailleApres) {
+				System.out.print("Ce jeu est déjà dans votre liste");
+				return false;
+			}
+			if(this instanceof Enfant) {
+				this.jeux.remove(j);
+				System.out.println("Vous ne pouvez pas acheter de jeu !!");
+				return false;
+			}
+			return true;
+		}
+		return false;
 	}
 	
 	public void jouer() {

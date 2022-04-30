@@ -5,6 +5,8 @@ public enum Options {
 	AFFICHAGE_PROFIL("affichage de votre profil", false, true),
 	JOUER("Jouer"),
 	COLLECTION("Votre collection de jeux"),
+	DETAILS_JEU_PERSO("détails du jeu", false, true),
+	AFFICHAGE_AMIS("Votre liste d'amis"),
 	INVITER("Inviter un ami"),
 	SUPPRIMER("Supprimer un ami"),
 	BOUTIQUE("Boutique", true, false),
@@ -13,8 +15,6 @@ public enum Options {
 	GESTION_CONSOLE("Gestionnaire de vos consoles"),
 	DECONNEXION("Déconnexion"),
 	QUITTER("quitter l'application", false, true);
-	
-	// AFFICHAGE_AMIS
 	
 	private static class Compteur {
 		private static int index = 0;

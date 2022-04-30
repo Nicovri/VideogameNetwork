@@ -148,11 +148,11 @@ public class App {
 	 * 
 	 * @throws IOException
 	 */
-	public static void main(String[] args) {
+	public static void main(String[] args) throws IOException {
 		App app = new App();
 		try {			
 			app = new App(args[0], 55, 100);
-		} catch (IOException | IndexOutOfBoundsException e) {}
+		} catch (IndexOutOfBoundsException e) {}
 		
 		// Si on entre autre chose qu'un nombre pour args[1], choix aura la valeur 0 et l'application ne se lancera pas
 		// De même si on oublie d'indiquer ce paramètre dans la ligne de commande (IndexOutOfBoundsException)
@@ -177,6 +177,20 @@ public class App {
 					app.parametres = Menus.Profil.afficherProfil(app.joueurs, app.parametres.getSecond());
 					break;
 				case JOUER:
+					break;
+				case COLLECTION:
+					app.parametres = Menus.CollectionJeux.afficherListeJeux(app.joueurs.get(app.parametres.getSecond()).getJeux(),
+							app.plateformes, app.categories, app.parametres.getSecond());
+					break;
+				case DETAILS_JEU_PERSO:
+					app.parametres = Menus.CollectionJeux.afficherDetailsJeu(app.joueurs.get(app.parametres.getSecond()).getJeux(), app.parametres.getSecond()).getSecond();
+					break;
+				case BOUTIQUE:
+					app.parametres = Menus.Boutique.acheterJeu(app.joueurs, app.dataJeux, app.plateformes, app.categories, app.parametres.getSecond());
+					break;
+				case CADEAU:
+					break;
+				case AFFICHAGE_AMIS:
 					break;
 				case INSCRIRE_ENFANT:
 					app.parametres = Menus.Interactions.inscrireSonEnfant(app.joueurs, app.plateformes, app.parametres.getSecond());
