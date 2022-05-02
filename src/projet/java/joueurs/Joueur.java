@@ -39,6 +39,13 @@ public abstract class Joueur {
 	protected Date getDateNaissance() { return this.dateDeNaissance; }
 	
 	public Set<Jeu> getJeux() { return this.jeux; }
+	public Set<String> getAmis() {
+		Set<String> pseudos = new HashSet<>();
+		for(Joueur j : this.amis) {
+			pseudos.add(j.getPseudo());
+		}
+		return pseudos;
+	}
 	
 	public String profilPublic() {
 		return this.pseudo;
@@ -85,18 +92,13 @@ public abstract class Joueur {
 	}
 	
 	// ExceptionJeuNonTrouve
-	public boolean acheterJeu(Jeu j) {
+	public boolean ajouterJeu(Jeu j) {
 		if(j != null) {
 			int tailleAvant = this.jeux.size();
 			this.jeux.add(j);
 			int tailleApres = this.jeux.size();
 			if(tailleAvant == tailleApres) {
-				System.out.print("Ce jeu est déjà dans votre liste");
-				return false;
-			}
-			if(this instanceof Enfant) {
-				this.jeux.remove(j);
-				System.out.println("Vous ne pouvez pas acheter de jeu !!");
+				System.out.print("Ce jeu est déjà dans votre liste.");
 				return false;
 			}
 			return true;
@@ -104,17 +106,21 @@ public abstract class Joueur {
 		return false;
 	}
 	
-	public void jouer() {
-		// Proposer une partie multijoueurs à un ami
-		
-		// Un bot peut jouer plusieurs parties en même temps
-		// jouer avec un membre de sa liste d'amis qui le peut (possède le même jeu)
-		// Jeu compatible entre eux peu importe la machine
+	// ExceptionJeuNonTrouve
+	public boolean supprimerJeu(Jeu j) {
+		if(j != null) {
+			int tailleAvant = this.jeux.size();
+			this.jeux.remove(j);
+			int tailleApres = this.jeux.size();
+			if(tailleAvant == tailleApres) {
+				System.out.println("Ce jeu ne se trouvait pas dans votre liste.");
+				return false;
+			}
+			return true;
+		}
+		return false;
 	}
 	
-	// Cahier des charges
-	// Parcours de la liste des jeux par machine et catégorie (des jeux du joueur? pour jouer ou afficher les infos? tous les jeux pour en acheter un?)
-	// Affichage des infos sur un jeu
 	// 10, 11, 12, 13, 14 optionnels
 	// Note 9 ?
 	

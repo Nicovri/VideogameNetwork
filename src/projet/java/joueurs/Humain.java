@@ -2,15 +2,17 @@ package projet.java.joueurs;
 
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 import projet.java.jeux.PartieMultijoueurs;
 
 public abstract class Humain extends Joueur {
 	// Attributs que les bots n'ont pas
-	protected List<PartieMultijoueurs> parties = new ArrayList<>();
+	protected Map<Date, PartieMultijoueurs> parties = new HashMap<>();
 	private Set<String> machinesDeJeu = new HashSet<>();
 		
 	private Humain(String pseudo, String email, Date dateNaissance) {

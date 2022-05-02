@@ -19,7 +19,7 @@ public class Jeu {
 	private float autresVentes;
 	private float ventesTotales;
 	
-	private final int DATE_IA = 1993;
+	public final static String DATE_IA = "1993";
 	
 	public Jeu(int rang, String nom, String plateforme, Year annee, String genre, String editeur,
 			float ventesAN, float ventesEU, float ventesJP, float autresVentes, float ventesTotales) {
@@ -37,8 +37,10 @@ public class Jeu {
 	}
 	
 	public int getRang() { return this.rang; }
+	public String getNom() { return this.nom; }
 	public String getPlateforme() { return this.plateforme; }
 	public String getGenre() { return this.genre; }
+	public String getAnnee() { return this.annee.toString(); }
 	
 	public void setRang(int rang) { this.rang = rang; }
 	public void setNom(String nom) { this.nom = nom; }

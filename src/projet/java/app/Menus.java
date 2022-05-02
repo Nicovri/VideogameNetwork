@@ -14,6 +14,7 @@ import java.util.Set;
 import java.util.SortedSet;
 
 import projet.java.jeux.Jeu;
+import projet.java.joueurs.Bot;
 import projet.java.joueurs.Enfant;
 import projet.java.joueurs.Gold;
 import projet.java.joueurs.Humain;
@@ -32,6 +33,51 @@ public class Menus {
 	private final static String CHOIX_RECOMMENCER = "(Pour recommencer, entrez R)";
 	private final static String CHOIX_OUI = "(Pour valider, entrez O)";
 	private final static String CHOIX_NON = "(Pour refuser, entrez N)";
+	
+	private static void afficherDetailsJeuSelonRang(Collection<Jeu> jeux, int rang) {
+		for(Jeu jeu : jeux) {
+			if(jeu.getRang() == rang) {
+				System.out.println(Menus.SEPARATEUR);
+				System.out.println(jeu.toString());
+				System.out.println(Menus.SEPARATEUR);
+			}
+		}
+	}
+	
+	private static Jeu TrouverJeuSelonRang(Collection<Jeu> jeux, int rang) {
+		for(Jeu jeu : jeux) {
+			if(jeu.getRang() == rang) {
+				return jeu;
+			}
+		}
+		return null; // throw ExceptionJeuNonTrouve
+	}
+	
+	// Plutôt la retourner que l'afficher
+	private static boolean afficherListeAmisSansBots(Map<String, Joueur> joueurs, String joueurActif) {
+		int c = 0;
+		if(joueurs.get(joueurActif).getAmis().isEmpty()) {
+			System.out.println("Vous n'avez pas encore d'amis dans votre liste.");
+			return false;
+		}
+		for(String pseudo : joueurs.get(joueurActif).getAmis()) {
+			if(!(joueurs.get(pseudo) instanceof Bot)) {				
+				System.out.println("- " + pseudo);
+				c++;
+			}
+		}
+		if(c == 0 && !joueurs.get(joueurActif).getAmis().isEmpty()) {
+			System.out.println("Vous n'avez pas encore d'amis non bots dans votre liste.");
+			return false;
+		}
+		return true;
+	}
+	
+	// utiliser la fonction au dessus, puis afficher la liste
+	// Si la liste est vide, voir si des bots sont disponibles pour jouer
+	private static boolean afficherListeAmisPouvantJouer() {
+		
+	}
 	
 	public static class Profil {
 		
@@ -416,8 +462,76 @@ public class Menus {
 			return resultat;
 		}
 		
-		public static Pair<Options, String> offrirJeu() {
-			
+		public static Pair<Options, String> offrirJeu(Map<String, Joueur> joueurs, SortedSet<String> plateformes, SortedSet<String> genres, String joueurActif) {
+			if(joueurs.get(joueurActif) instanceof Enfant) {
+				System.out.println("Vous ne pouvez pas offrir de jeux !!");
+				return new Pair<>(Options.AFFICHAGE_PROFIL, joueurActif);
+			}
+			resultat = Menus.CollectionJeux.afficherListeJeux(joueurs.get(joueurActif).getJeux(), plateformes, genres, joueurActif);
+			if(!resultat.getFirst().equals(Options.DETAILS_JEU_PERSO)) {
+				if(resultat.getFirst().equals(Options.COLLECTION)) resultat.setFirst(Options.CADEAU);
+			} else {
+				Pair<Integer, Pair<Options, String>> res = Menus.CollectionJeux.afficherDetailsJeu(joueurs.get(joueurActif).getJeux(), joueurActif);
+				int indexJeu = res.getFirst();
+				resultat = res.getSecond();
+				if(resultat.getFirst().equals(Options.DETAILS_JEU_PERSO)) {
+					// Offre du jeu (à un ami non enfant sauf si on est le parent)
+					System.out.println(Menus.CHOIX_OUI);
+					System.out.println(Menus.CHOIX_NON);
+					System.out.print("\nVoulez-vous offrir ce jeu ? : ");
+					Scanner sc = new Scanner(System.in);
+					String choix = sc.nextLine();
+					while(!choix.equals("O") && !choix.equals("N")) {
+						System.out.println("Veuillez choisir une option disponible.");
+						System.out.print("\nVoulez-vous offrir ce jeu ? : ");
+						sc = new Scanner(System.in);
+						choix = sc.nextLine();
+					}
+					switch(choix) {
+					case "O":
+						System.out.println(Menus.CHOIX_QUITTER);
+						Menus.afficherListeAmisSansBots(joueurs, joueurActif);
+						System.out.print("Veuillez entrer le pseudo du joueur auquel offrir le jeu : ");
+						sc = new Scanner(System.in);
+						choix = sc.nextLine();
+						while(joueurs.get(choix) == null && !joueurs.get(joueurActif).getAmis().contains(choix)) {
+							if(joueurs.get(choix) == null) {								
+								System.out.println("Ce pseudo n'est pas valide. Veuillez entrer un pseudo existant.");
+							} else {
+								System.out.println("Ce joueur n'est pas un ami. Vous ne pouvez pas lui offrir de jeu.");
+							}
+							System.out.print("Veuillez entrer le pseudo du joueur auquel offrir le jeu : ");
+							sc = new Scanner(System.in);
+							choix = sc.nextLine();
+						}
+						
+						System.out.println("Offre du jeu à " + choix + "...");
+						boolean estAjoute = joueurs.get(choix).ajouterJeu(Menus.TrouverJeuSelonRang(joueurs.get(joueurActif).getJeux(), indexJeu));
+						boolean estSupprime = joueurs.get(joueurActif).supprimerJeu(Menus.TrouverJeuSelonRang(joueurs.get(joueurActif).getJeux(), indexJeu));
+						if(estAjoute && estSupprime) {
+							System.out.println("Jeu offert à l'ami sélectionné !");
+						} else if(!estAjoute || !estSupprime) {
+							if(estAjoute && !estSupprime) joueurs.get(choix).supprimerJeu(Menus.TrouverJeuSelonRang(joueurs.get(joueurActif).getJeux(), indexJeu));
+							if(!estAjoute && estSupprime) joueurs.get(joueurActif).ajouterJeu(Menus.TrouverJeuSelonRang(joueurs.get(joueurActif).getJeux(), indexJeu));
+							System.out.println("Annulation...");
+							System.out.println("Opération annulée.");
+						}
+						resultat.setFirst(Options.AFFICHAGE_PROFIL);
+						break;
+					case "N":
+						System.out.println("Retour au profil...");
+						resultat.setFirst(Options.AFFICHAGE_PROFIL);
+						resultat.setSecond(joueurActif);
+						break;
+					default:
+						System.out.println("Retour au menu d'offre de jeu à un ami...");
+						resultat.setFirst(Options.CADEAU);
+						resultat.setSecond(joueurActif);
+						break;
+					}
+				}
+			}
+			return resultat;
 		}
 	}
 	
@@ -528,16 +642,6 @@ public class Menus {
 	}
 	
 	public static class CollectionJeux {
-		private static void afficherDetailsJeuSelonRang(Collection<Jeu> jeux, int rang) {
-			for(Jeu jeu : jeux) {
-				if(jeu.getRang() == rang) {
-					System.out.println(Menus.SEPARATEUR);
-					System.out.println(jeu.toString());
-					System.out.println(Menus.SEPARATEUR);
-				}
-			}
-		}
-		
 		public static Pair<Options, String> afficherListeJeux(Collection<Jeu> jeux, SortedSet<String> plateformes, SortedSet<String> genres, String joueurActif) {
 			System.out.print(Menus.SEPARATEUR);
 			System.out.print("1. Jeux classés par machine\n2. Jeux classés par genre");
@@ -550,13 +654,12 @@ public class Menus {
 			Object[] arrayJeuxTries;
 			
 			if(jeux.isEmpty()) {
-				System.out.println("Aucuns jeux dans votre collection...");
+				System.out.println("Aucun jeux dans votre collection...");
 				return new Pair<>(Options.AFFICHAGE_PROFIL, joueurActif);
 			}
 			
 			switch(choix) {
 			case "1":
-				System.out.println("avant");
 				jeuxTries = Jeu.triParMachine(jeux, plateformes);
 				arrayJeuxTries = jeuxTries.toArray();
 				for(int i = 0; i < jeuxTries.size(); i++) {
@@ -569,7 +672,6 @@ public class Menus {
 					}
 					System.out.println(((Jeu) arrayJeuxTries[i]).affichageRapide());
 				}
-				System.out.println("après");
 				break;
 			case "2":
 				jeuxTries = Jeu.triParGenre(jeux, genres);
@@ -611,7 +713,7 @@ public class Menus {
 			int indexJeu;
 			if(choix.matches("\\d+")) {
 				indexJeu = Integer.parseInt(choix);
-				Menus.CollectionJeux.afficherDetailsJeuSelonRang(jeux, indexJeu);
+				Menus.afficherDetailsJeuSelonRang(jeux, indexJeu);
 				resultat.setFirst(Options.DETAILS_JEU_PERSO);
 				resultat.setSecond(joueurActif);
 			} else {
@@ -624,18 +726,15 @@ public class Menus {
 	}
 	
 	public static class Boutique {
-		private static Jeu TrouverJeuSelonRang(Collection<Jeu> jeux, int rang) {
-			for(Jeu jeu : jeux) {
-				if(jeu.getRang() == rang) {
-					return jeu;
-				}
-			}
-			return null; // throw ExceptionJeuNonTrouve
-		}
-		
 		public static Pair<Options, String> acheterJeu(Map<String, Joueur> joueurs, List<Jeu> jeux, SortedSet<String> plateformes, SortedSet<String> genres, String joueurActif) {
+			if(joueurs.get(joueurActif) instanceof Enfant) {
+				System.out.println("Vous ne pouvez pas acheter de jeux !!");
+				return new Pair<>(Options.AFFICHAGE_PROFIL, joueurActif);
+			}
 			resultat = Menus.CollectionJeux.afficherListeJeux(jeux, plateformes, genres, joueurActif);
-			if(resultat.getFirst().equals(Options.DETAILS_JEU_PERSO)) {
+			if(!resultat.getFirst().equals(Options.DETAILS_JEU_PERSO)) {
+				if(resultat.getFirst().equals(Options.COLLECTION)) resultat.setFirst(Options.BOUTIQUE);
+			} else {
 				Pair<Integer, Pair<Options, String>> res = Menus.CollectionJeux.afficherDetailsJeu(jeux, joueurActif);
 				int indexJeu = res.getFirst();
 				resultat = res.getSecond();
@@ -646,22 +745,31 @@ public class Menus {
 					System.out.print("\nVoulez-vous acheter ce jeu ? : ");
 					Scanner sc = new Scanner(System.in);
 					String choix = sc.nextLine();
+					while(!choix.equals("O") && !choix.equals("N")) {
+						System.out.println("Veuillez choisir une option disponible.");
+						System.out.print("\nVoulez-vous acheter ce jeu ? : ");
+						sc = new Scanner(System.in);
+						choix = sc.nextLine();
+					}
 					switch(choix) {
 					case "O":
 						System.out.println("Achat du jeu...");
-						boolean estAchete = joueurs.get(joueurActif).acheterJeu(Menus.Boutique.TrouverJeuSelonRang(jeux, indexJeu));
+						boolean estAchete = joueurs.get(joueurActif).ajouterJeu(Menus.TrouverJeuSelonRang(jeux, indexJeu));
 						if(estAchete) {							
 							System.out.println("Jeu acheté et ajouté à votre liste !");
 						} else {
 							System.out.println("Annulation...");
 							System.out.println("Opération annulée.");
 						}
-						resultat.setFirst(Options.COLLECTION);
+						resultat.setFirst(Options.AFFICHAGE_PROFIL);
 						break;
 					case "N":
+						System.out.println("Retour au profil...");
+						resultat.setFirst(Options.AFFICHAGE_PROFIL);
+						resultat.setSecond(joueurActif);
 						break;
 					default:
-						System.out.println("Veuillez choisir une option disponible.");
+						System.out.println("Retour à la boutique...");
 						resultat.setFirst(Options.BOUTIQUE);
 						resultat.setSecond(joueurActif);
 						break;
@@ -673,13 +781,49 @@ public class Menus {
 		
 	}	
 	
-	public static class PartieMulti {
-		private Jeu jeu;
-		private Joueur[] joueurs = new Joueur[2];
-		
-		private static Pair<Options, String> afficherListeAmis() {
-			
+	public static class ListeAmis {
+		public static Pair<Options, String> afficherListeAmis(Map<String, Joueur> joueurs, String joueurActif) {
+			if(joueurs.get(joueurActif).getAmis().isEmpty()) {
+				System.out.println("Vous n'avez pas encore d'amis dans votre liste.");
+				return new Pair<>(Options.AFFICHAGE_PROFIL, joueurActif);
+			}
+			for(String pseudo : joueurs.get(joueurActif).getAmis()) {
+				System.out.println("- " + pseudo);
+			}
+			System.out.print("\n");
+			resultat.setFirst(Options.DETAILS_PUBLIQUES_AMIS);
+			resultat.setSecond(joueurActif);
+			return resultat;
 		}
+		
+		public static Pair<Options, String> afficherDetailsPubliquesAmis(Map<String, Joueur> joueurs, String joueurActif) {			
+			System.out.println("\n" + Menus.CHOIX_QUITTER);
+			System.out.print("Choisissez le pseudo du jeu pour afficher ses détails publiques : ");
+			Scanner sc = new Scanner(System.in);
+			String choix = sc.nextLine();
+			
+			while(joueurs.get(choix) == null && !joueurs.get(joueurActif).getAmis().contains(choix)) {
+				if(joueurs.get(choix) == null) {								
+					System.out.println("Ce pseudo n'est pas valide. Veuillez entrer un pseudo existant.");
+				} else {
+					System.out.println("Ce joueur n'est pas un ami.");
+				}
+				System.out.print("Choisissez le pseudo du jeu pour afficher ses détails publiques : ");
+				sc = new Scanner(System.in);
+				choix = sc.nextLine();
+			}
+			
+			System.out.println(Menus.SEPARATEUR);
+			System.out.println(joueurs.get(choix).profilPublic());
+			System.out.println(Menus.SEPARATEUR);
+			
+			resultat.setFirst(Options.DETAILS_PUBLIQUES_AMIS);
+			resultat.setSecond(joueurActif);
+			return resultat;
+		}
+	}
+	
+	public static class PartieMulti {
 	}
 	
 	public static class Statistiques {}

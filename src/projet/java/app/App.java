@@ -168,7 +168,7 @@ public class App {
 		case 1:
 			// On exécute la fonction correspondant au code de retour, selon les choix de l'utilisateur
 			// (Voir projet.java.app.Menus)
-			while(app.parametres.getFirst() != Options.QUITTER) {
+			while(!app.parametres.getFirst().equals(Options.QUITTER)) {
 				switch(app.parametres.getFirst()) {
 				case ACCUEIL:
 					app.parametres = Menus.Profil.accueilJoueur(app.joueurs, app.plateformes);
@@ -189,8 +189,13 @@ public class App {
 					app.parametres = Menus.Boutique.acheterJeu(app.joueurs, app.dataJeux, app.plateformes, app.categories, app.parametres.getSecond());
 					break;
 				case CADEAU:
+					app.parametres = Menus.Interactions.offrirJeu(app.joueurs, app.plateformes, app.categories, app.parametres.getSecond());
 					break;
 				case AFFICHAGE_AMIS:
+					app.parametres = Menus.ListeAmis.afficherListeAmis(app.joueurs, app.parametres.getSecond());
+					break;
+				case DETAILS_PUBLIQUES_AMIS:
+					app.parametres = Menus.ListeAmis.afficherDetailsPubliquesAmis(app.joueurs, app.parametres.getSecond());
 					break;
 				case INSCRIRE_ENFANT:
 					app.parametres = Menus.Interactions.inscrireSonEnfant(app.joueurs, app.plateformes, app.parametres.getSecond());
@@ -208,15 +213,18 @@ public class App {
 					app.parametres = Menus.Profil.deconnexion(app.parametres.getSecond());
 					break;
 				case QUITTER:
-					// Faire le nécessaire avant de quitter l'aplication
+					app.parametres.setFirst(Options.QUITTER);
+					app.parametres.setSecond("");
 					break;
 				default:
-					// De même ici car on quitte l'application (+ potentielles erreurs car on n'est pas censé passer par là)
 					app.parametres.setFirst(Options.QUITTER);
 					app.parametres.setSecond("");
 					break;
 				}
 			}
+			// Faire le nécessaire avant de quitter l'aplication (gestion d'exceptions ?)
+			app.parametres.setFirst(Options.ACCUEIL);
+			app.parametres.setSecond("");
 			break;
 			
 		case 2:

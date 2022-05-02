@@ -7,6 +7,7 @@ public enum Options {
 	COLLECTION("Votre collection de jeux"),
 	DETAILS_JEU_PERSO("détails du jeu", false, true),
 	AFFICHAGE_AMIS("Votre liste d'amis"),
+	DETAILS_PUBLIQUES_AMIS("détails publiques de vos amis", false, true),
 	INVITER("Inviter un ami"),
 	SUPPRIMER("Supprimer un ami"),
 	BOUTIQUE("Boutique", true, false),

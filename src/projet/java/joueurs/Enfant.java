@@ -68,9 +68,9 @@ public class Enfant extends Humain {
 	}
 	
 	@Override
-	public boolean acheterJeu(Jeu j) {
-		boolean jeuAchete = super.acheterJeu(j);
-		if(jeuAchete) {
+	public boolean ajouterJeu(Jeu j) {
+		boolean jeuAjoute = super.ajouterJeu(j);
+		if(jeuAjoute) {
 			if(this.jeux.size() > this.JEUX_MAX) {
 				this.jeux.remove(j);
 				System.out.println("Plus de place dans la collection de jeux...");
@@ -78,6 +78,6 @@ public class Enfant extends Humain {
 				// ExceptionPlusDePlaceCollectionJeux
 			}
 		}
-		return jeuAchete;
+		return jeuAjoute;
 	}
 }
