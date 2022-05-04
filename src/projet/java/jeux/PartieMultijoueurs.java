@@ -16,7 +16,7 @@ public class PartieMultijoueurs {
 	// 0 si partie impossible
 	// 1 si partie possible
 	// 2 si partie possible sous condition d'un bot disponible (à gérer ailleurs)
-	public int jouer() {
+	public int partiePossible() {
 		boolean partiePossible = false;
 		for(Jeu j : this.joueurs[1].getJeux()) {
 			if(jeu.getNom() == j.getNom()) {
@@ -42,6 +42,20 @@ public class PartieMultijoueurs {
 			return 0;
 		}
 		return 2;
-		// Un bot peut jouer plusieurs parties en même temps
+	}
+	
+	public void jouer() {
+		int partiePossible = this.partiePossible();
+		if(partiePossible == 1) {
+			// Ajout des parties jouées aux joueurs
+			// Victoire / défaite pour statistiques (random)
+		}
+	}
+	
+	public void gestionBot() {
+		int partiePossible = this.partiePossible();
+		if(partiePossible == 2) {
+			
+		}
 	}
 }

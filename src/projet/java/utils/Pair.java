@@ -21,4 +21,6 @@ public class Pair<F, S> implements Serializable {
 	
 	public void setFirst(F f) { this.first = f; }
 	public void setSecond(S s) { this.second = s; }
+	
+	public void setBoth(F f, S s) { this.first = f; this.second = s; }
 }

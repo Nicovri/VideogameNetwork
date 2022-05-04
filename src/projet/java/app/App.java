@@ -8,11 +8,13 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.StringReader;
+import java.net.ConnectException;
 import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
+import java.net.UnknownHostException;
 import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
@@ -118,10 +120,11 @@ public class App {
 		}
 		
 		// Ajout de joueurs par défaut pour tests
-		this.joueurs.put("nicovri", new Gold("nicovri", "nico@vri.com", new Date(), "DS"));
+		this.joueurs.put("nicolas", new Gold("nicolas", "nicolas@nicolas.com", new Date(), "DS"));
 		this.joueurs.put("john178", new Standard("john178", "John.178@gmail.com", new Date(), "PC"));
+		this.joueurs.put("paul56", new Gold("paul56", "paul.5.6@test.org", new Date(), "XB"));
 		this.joueurs.put("enfant", new Enfant("enfant", "enfant@test.fr", new Date(), "Wii", "G"));
-		
+		// Test limite du nombre d'amis (fonctionne de la même manière pour les jeux)
 		this.joueurs.put("enfant1", new Enfant("enfant1", "enfant@test.fr", new Date(), "Wii", "G"));
 		this.joueurs.put("enfant2", new Enfant("enfant2", "enfant2@test.fr", new Date(), "Wii", "S"));
 		this.joueurs.put("enfant3", new Enfant("enfant3", "enfant3@test.fr", new Date(), "Wii", "G"));
@@ -152,7 +155,13 @@ public class App {
 		App app = new App();
 		try {			
 			app = new App(args[0], 55, 100);
-		} catch (IndexOutOfBoundsException e) {}
+		} catch (IndexOutOfBoundsException e) {
+			System.out.println("Il n'y a pas autant de jeux dans l'URL donné, réessayez.");
+			e.printStackTrace();
+		} catch (ConnectException | UnknownHostException e) {
+			System.out.println("Pas de connexion à Internet pour obtenir les données sur les jeux, réessayez.");
+			e.printStackTrace();
+		}
 		
 		// Si on entre autre chose qu'un nombre pour args[1], choix aura la valeur 0 et l'application ne se lancera pas
 		// De même si on oublie d'indiquer ce paramètre dans la ligne de commande (IndexOutOfBoundsException)
@@ -177,6 +186,7 @@ public class App {
 					app.parametres = Menus.Profil.afficherProfil(app.joueurs, app.parametres.getSecond());
 					break;
 				case JOUER:
+					app.parametres = Menus.PartieMulti.jouer(app.joueurs, app.parametres.getSecond());
 					break;
 				case COLLECTION:
 					app.parametres = Menus.CollectionJeux.afficherListeJeux(app.joueurs.get(app.parametres.getSecond()).getJeux(),
@@ -222,7 +232,7 @@ public class App {
 					break;
 				}
 			}
-			// Faire le nécessaire avant de quitter l'aplication (gestion d'exceptions ?)
+			// Faire le nécessaire avant de quitter l'aplication (gestion d'exceptions ?, base de données, etc.)
 			app.parametres.setFirst(Options.ACCUEIL);
 			app.parametres.setSecond("");
 			break;

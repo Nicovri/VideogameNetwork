@@ -84,7 +84,7 @@ public abstract class Joueur {
 		if(this instanceof Gold && j instanceof Enfant) {
 			if(((Enfant) j).getPseudosParents()[0].contains(this.getPseudo()) || ((Enfant) j).getPseudosParents()[1].contains(this.getPseudo())) {
 				this.amis.add(j);
-				System.out.print("Vous ne pouvez pas retirer votre enfant de la liste d'amis.");
+				System.out.println("Vous ne pouvez pas retirer votre enfant de la liste d'amis.");
 				return false;
 			}
 		}
@@ -98,7 +98,7 @@ public abstract class Joueur {
 			this.jeux.add(j);
 			int tailleApres = this.jeux.size();
 			if(tailleAvant == tailleApres) {
-				System.out.print("Ce jeu est déjà dans votre liste.");
+				System.out.println("Ce jeu est déjà dans votre liste.");
 				return false;
 			}
 			return true;
