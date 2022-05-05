@@ -29,7 +29,7 @@ public abstract class Joueur {
 	// Création des bots que lorsque nécessaire (pas d'ami dans sa liste qui peut jouer à ce jeu en question)
 	
 	public Joueur(String pseudo, String email, Date dateNaissance) {
-		this.pseudo = pseudo; // ExceptionPseudoTropCourt
+		this.pseudo = pseudo;
 		this.email = email;
 		this.dateDeNaissance = dateNaissance;
 	}

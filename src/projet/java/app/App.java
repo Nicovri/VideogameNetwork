@@ -186,7 +186,7 @@ public class App {
 					app.parametres = Menus.Profil.afficherProfil(app.joueurs, app.parametres.getSecond());
 					break;
 				case JOUER:
-					app.parametres = Menus.PartieMulti.jouer(app.joueurs, app.parametres.getSecond());
+					app.parametres = Menus.PartieMulti.jouer(app.joueurs, app.plateformes, app.categories, app.parametres.getSecond());
 					break;
 				case COLLECTION:
 					app.parametres = Menus.CollectionJeux.afficherListeJeux(app.joueurs.get(app.parametres.getSecond()).getJeux(),

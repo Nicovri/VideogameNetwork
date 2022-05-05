@@ -79,15 +79,78 @@ public class Menus {
 		// Gestion set vide
 		for(String pseudo : amisSansBotsPouvantJouer) {
 			PartieMultijoueurs pm = new PartieMultijoueurs(jeu, joueurs.get(joueurActif), joueurs.get(pseudo)); 
-			if(pm.partiePossible() != 1) {
+			if(!pm.partiePossibleHumain()) {
 				amisSansBotsPouvantJouer.remove(pseudo);
 			}
 		}
 		return amisSansBotsPouvantJouer;
 	}
 	
-	private static boolean gestionBots() {
-		
+	private static Set<String> listeBots(Map<String, Joueur> joueurs) {
+		Set<String> bots = new HashSet<>();
+		for(String pseudo : joueurs.keySet()) {
+			if(joueurs.get(pseudo) instanceof Bot) {
+				bots.add(pseudo);
+			}
+		}
+		return bots;
+	}
+	
+	// Au plus 1 bot par jeu (TODO: indépendemment de la console)
+	private static boolean gestionBots(Map<String, Joueur> joueurs) {
+		Set<String> bots = listeBots(joueurs);
+		Set<String> botsEnTrop = new HashSet<>();
+		if(bots.isEmpty()) {
+			return true;
+		} else {
+			for(String pseudoBot : bots) {
+				Set<Jeu> jeux = joueurs.get(pseudoBot).getJeux();
+				bots.remove(pseudoBot);
+				for(String pseudoAutreBot : bots) {
+					for(Jeu jeu : jeux) {						
+						if(joueurs.get(pseudoAutreBot).getJeux().contains(jeu)) {
+							bots.remove(pseudoAutreBot);
+							botsEnTrop.add(pseudoAutreBot);
+							break;
+						}
+					}
+				}
+				bots.add(pseudoBot);
+			}
+		}
+		for(String pseudo : botsEnTrop) {
+			joueurs.remove(pseudo);
+		}
+		return true;
+	}
+	
+	// ExceptionListeVide
+	// Hypothèse : Un bot peut jouer à plusieurs parties du même jeu en même temps
+	// Mais pas 2 parties de jeux différents en même temps
+	private static String gestionPartieAvecBots(Map<String, Joueur> joueurs, Jeu jeu) {
+		Set<String> bots = listeBots(joueurs);
+		String nomBot = Bot.PSEUDO_BOT + Bot.getId();
+		if(bots.isEmpty()) {
+			joueurs.put(nomBot, new Bot(jeu));
+			return nomBot;
+		} else {
+			for(String pseudoBot : bots) {
+				// Le bot ne joue pas
+				if(!((Bot)joueurs.get(pseudoBot)).getJoue()) {
+					if(!joueurs.get(pseudoBot).getJeux().contains(jeu)) {						
+						joueurs.get(pseudoBot).ajouterJeu(jeu);
+					}
+					return pseudoBot;
+				}
+				// Le bot joue au même jeu
+				if(((Bot)joueurs.get(pseudoBot)).getJoue() && jeu.getNom().equals(((Bot)joueurs.get(pseudoBot)).getJeuEnCours())) {
+					return pseudoBot;
+				}
+			}
+			// Tous les bots jouent à un autre jeu
+			joueurs.put(nomBot, new Bot(jeu));
+			return nomBot;
+		}
 	}
 	
 	public static class Profil {
@@ -510,7 +573,7 @@ public class Menus {
 				int indexJeu = res.getFirst();
 				resultat = res.getSecond();
 				if(resultat.getFirst().equals(Options.DETAILS_JEU_PERSO)) {
-					// Offre du jeu (à un ami non enfant sauf si on est le parent)
+					// Offre du jeu à un ami
 					System.out.println(Menus.CHOIX_OUI);
 					System.out.println(Menus.CHOIX_NON);
 					System.out.print("\nVoulez-vous offrir ce jeu ? : ");
@@ -532,8 +595,9 @@ public class Menus {
 						System.out.print("Veuillez entrer le pseudo du joueur auquel offrir le jeu : ");
 						sc = new Scanner(System.in);
 						choix = sc.nextLine();
-						while(joueurs.get(choix) == null && !joueurs.get(joueurActif).getAmis().contains(choix)) {
-							if(joueurs.get(choix) == null) {								
+						
+						while((joueurs.get(choix) == null || !joueurs.get(joueurActif).getAmis().contains(choix)) && !choix.equals("Q")) {
+							if(joueurs.get(choix) == null) {
 								System.out.println("Ce pseudo n'est pas valide. Veuillez entrer un pseudo existant.");
 							} else {
 								System.out.println("Ce joueur n'est pas un ami. Vous ne pouvez pas lui offrir de jeu.");
@@ -541,6 +605,13 @@ public class Menus {
 							System.out.print("Veuillez entrer le pseudo du joueur auquel offrir le jeu : ");
 							sc = new Scanner(System.in);
 							choix = sc.nextLine();
+						}
+						
+						if(choix.equals("Q")) {
+							System.out.println("Opération annulée.");
+							resultat.setFirst(Options.AFFICHAGE_PROFIL);
+							resultat.setSecond(joueurActif);
+							return resultat;
 						}
 						
 						System.out.println("Offre du jeu à " + choix + "...");
@@ -558,12 +629,13 @@ public class Menus {
 							System.out.println("Annulation...");
 							System.out.println("Opération annulée.");
 						}
+						
 						resultat.setFirst(Options.AFFICHAGE_PROFIL);
 						resultat.setSecond(joueurActif);
 						break;
 					case "N":
-						System.out.println("Retour au profil...");
-						resultat.setFirst(Options.AFFICHAGE_PROFIL);
+						System.out.println("Retour au menu d'offre de jeu à un ami...");
+						resultat.setFirst(Options.CADEAU);
 						resultat.setSecond(joueurActif);
 						break;
 					default:
@@ -620,6 +692,14 @@ public class Menus {
 		
 		private static Pair<Options, String> supprimerConsole(Map<String, Joueur> joueurs, SortedSet<String> plateformes, String joueurActif) {
 			Set<String> m = ((Humain) joueurs.get(joueurActif)).getMachines();
+			if(m.isEmpty()) {
+				System.out.println("Vous n'avez aucune console, vous ne pouvez pas en supprimer.");
+				System.out.println("Annulation...");
+				System.out.println("Opération annulée.");
+				resultat.setFirst(Options.AFFICHAGE_PROFIL);
+				resultat.setSecond(joueurActif);
+				return resultat;
+			}
 			int nombre = m.size() + 1;
 			for(int i = 0; i < m.size(); i++) {
 				System.out.println((i + 1) + ". " + m.toArray()[i]);
@@ -685,6 +765,7 @@ public class Menus {
 	}
 	
 	public static class CollectionJeux {
+		// ExceptionPasDeDonneesPlateformes / Genres (si null)
 		public static Pair<Options, String> afficherListeJeux(Collection<Jeu> jeux, SortedSet<String> plateformes, SortedSet<String> genres, String joueurActif) {
 			System.out.print(Menus.SEPARATEUR);
 			System.out.print("1. Jeux classés par machine\n2. Jeux classés par genre");
@@ -813,8 +894,8 @@ public class Menus {
 						resultat.setFirst(Options.AFFICHAGE_PROFIL);
 						break;
 					case "N":
-						System.out.println("Retour au profil...");
-						resultat.setFirst(Options.AFFICHAGE_PROFIL);
+						System.out.println("Retour à la boutique...");
+						resultat.setFirst(Options.BOUTIQUE);
 						resultat.setSecond(joueurActif);
 						break;
 					default:
@@ -853,7 +934,7 @@ public class Menus {
 			Scanner sc = new Scanner(System.in);
 			String choix = sc.nextLine();
 			
-			while(joueurs.get(choix) == null && !joueurs.get(joueurActif).getAmis().contains(choix)) {
+			while((joueurs.get(choix) == null || !joueurs.get(joueurActif).getAmis().contains(choix)) && !choix.equals("Q")) {
 				if(joueurs.get(choix) == null) {								
 					System.out.println("Ce pseudo n'est pas valide. Veuillez entrer un pseudo existant.");
 				} else {
@@ -862,6 +943,13 @@ public class Menus {
 				System.out.print("Choisissez le pseudo du jeu pour afficher ses détails publiques : ");
 				sc = new Scanner(System.in);
 				choix = sc.nextLine();
+			}
+			
+			if(choix.equals("Q")) {
+				System.out.println("Opération annulée.");
+				resultat.setFirst(Options.AFFICHAGE_PROFIL);
+				resultat.setSecond(joueurActif);
+				return resultat;
 			}
 			
 			System.out.println(Menus.SEPARATEUR);
@@ -875,23 +963,91 @@ public class Menus {
 	}
 	
 	public static class PartieMulti {
-		public static Pair<Options, String> jouer(Map<String, Joueur> joueurs, String joueurActif) {
-			/*Set<String> test = Menus.listeAmisPouvantJouer(joueurs, (Jeu)joueurs.get(joueurActif).getJeux().toArray()[0], joueurActif);
-			for(String pseudo : test) {
-				System.out.println(pseudo);
+		// On suppose que le joueur va essayer de jouer en premier lieu avec un autre joueur ami avant d'essayer de jouer avec un bot
+		// On suppose qu'un bot n'a pas besoin d'être ami avec le joueur pour jouer (ce n'est pas un vrai joueur, cela rendrait la gestion des amis pénible pour les joueurs ayant un nombre d'amis limités)
+		public static Pair<Options, String> jouer(Map<String, Joueur> joueurs, SortedSet<String> plateformes, SortedSet<String> genres, String joueurActif) {
+			// Demander le jeu auquel on veut jouer parmi ses jeux (s'il a un jeu)
+			resultat = Menus.CollectionJeux.afficherListeJeux(joueurs.get(joueurActif).getJeux(), plateformes, genres, joueurActif);
+			if(!resultat.getFirst().equals(Options.DETAILS_JEU_PERSO)) {
+				if(resultat.getFirst().equals(Options.COLLECTION)) resultat.setFirst(Options.JOUER);
+			} else {
+				Pair<Integer, Pair<Options, String>> res = Menus.CollectionJeux.afficherDetailsJeu(joueurs.get(joueurActif).getJeux(), joueurActif);
+				int indexJeu = res.getFirst();
+				resultat = res.getSecond();
+				if(resultat.getFirst().equals(Options.DETAILS_JEU_PERSO)) {
+					// Sélection du jeu auquel jouer
+					System.out.println(Menus.CHOIX_OUI);
+					System.out.println(Menus.CHOIX_NON);
+					System.out.print("\nVoulez-vous jouer à ce jeu ? : ");
+					Scanner sc = new Scanner(System.in);
+					String choix = sc.nextLine();
+					
+					while(!choix.equals("O") && !choix.equals("N")) {
+						System.out.println("Veuillez choisir une option disponible.");
+						System.out.print("\nVoulez-vous jouer à ce jeu ? : ");
+						sc = new Scanner(System.in);
+						choix = sc.nextLine();
+					}
+					switch(choix) {
+					case "O":
+						// TODO: Il reste à compléter ce switch case pour cette fonction jouer
+						// Choix du mode de jeu (avec ami ou avec bot)
+						System.out.print(Menus.SEPARATEUR);
+						System.out.print("1. Jouer avec un ami\n2. Jouer avec un bot");
+						System.out.print(Menus.SEPARATEUR);
+						System.out.print("Votre choix : ");
+						sc = new Scanner(System.in);
+						choix = sc.nextLine();
+						
+						Set<String> amisDispos = Menus.listeAmisPouvantJouer(joueurs, (Jeu)joueurs.get(joueurActif).getJeux().toArray()[0], joueurActif);
+						switch(choix) {
+						case "1":
+							// Afficher la liste des amis pouvant jouer s'il y en a
+							if(!amisDispos.isEmpty()) {
+								for(String pseudo : amisDispos) {
+									System.out.println(pseudo);
+								}
+								// Choix de l'ami avec qui jouer
+							}
+							break;
+						case "2":
+							if(Integer.parseInt(((Jeu)joueurs.get(joueurActif).getJeux().toArray()[0]).getAnnee()) >= Integer.parseInt(Jeu.DATE_IA)) {
+								
+							}
+							break;
+						default:
+							System.out.println("Veuillez choisir une des options ci-dessous.");
+							resultat.setFirst(Options.JOUER);
+							resultat.setSecond(joueurActif);
+							return resultat;
+						}
+						
+						/*// Pas d'ami pouvant jouer / Pas de module d'IA disponible : on propose un choix et on affiche les (10 MAX) joueurs les plus appropriés à inviter pour jouer
+						System.out.println("Invitez un de ces joueurs en tant qu'ami pour pouvoir jouer avec un vrai joueur. Sinon, vous pouvez toujours jouer avec un bot.");
+						resultat.setFirst(Options.AFFICHAGE_PROFIL);
+						resultat.setSecond(joueurActif);
+						return resultat;*/
+						
+						break;
+					case "N":
+						System.out.println("Retour au menu de choix du jeu...");
+						resultat.setFirst(Options.JOUER);
+						resultat.setSecond(joueurActif);
+						break;
+					default:
+						System.out.println("Retour au menu de choix du jeu...");
+						resultat.setFirst(Options.JOUER);
+						resultat.setSecond(joueurActif);
+						break;
+					}
+				}
 			}
-			return resultat;*/
-			// Afficher liste amis pouvant jouer s'il y en a
-			// S'il n'y en a pas et que pm.partiePossible == 2
-			// On vérifie si un bot pour ce jeu est déjà disponible
-			// (au plus 1 bot par jeu, peu importe la console)
-			// (bot créé qui n'est pas en train de jouer à un jeu différent ou qui est en train de jouer à ce jeu)
-			// (on suppose : un bot peut jouer à plusieurs parties du même jeu en même temps mais pas à 2 jeux différents en même temps)
-			// Si il est dispo
-			// S'il n'a pas le jeu, on lui ajoute
-			// Il est ensuite ajouté à la partie multi, le joueur joue et on obtient les résultats
-			// Si pas dispo, on crée un nouveau bot et on lui ajoute ce jeu
-			// Partie avec joueur, resultats
+			return resultat;
+
+			// Vérifier PARTIES_MAX dans joueur
+			
+			// Si on introduit un bot, modifier son statut boolean joue et jeuEnCours
+			// fonction gestionBots (pour enlever ceux en trop)
 		}
 	}
 	

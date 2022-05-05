@@ -1,6 +1,7 @@
 package projet.java.jeux;
 
 import projet.java.joueurs.Joueur;
+import projet.java.joueurs.Bot;
 import projet.java.joueurs.Humain;
 
 public class PartieMultijoueurs {
@@ -13,49 +14,56 @@ public class PartieMultijoueurs {
 		this.joueurs[1] = ami;
 	}
 	
-	// 0 si partie impossible
-	// 1 si partie possible
-	// 2 si partie possible sous condition d'un bot disponible (à gérer ailleurs)
-	public int partiePossible() {
+	// ExceptionJoueur2DoitEtreUnHumain
+	public boolean partiePossibleHumain() {
+		// ExceptionJoueur2PasUnAmi
 		boolean partiePossible = false;
-		for(Jeu j : this.joueurs[1].getJeux()) {
-			if(jeu.getNom() == j.getNom()) {
-				if(((Humain) this.joueurs[1]).getMachines().contains(j.getPlateforme())) {					
+		for(Jeu j : this.joueurs[0].getJeux()) {
+			if(jeu.getNom().equals(j.getNom())) {
+				if(((Humain) this.joueurs[0]).getMachines().contains(j.getPlateforme())) {					
 					partiePossible = true;
 				}
 			}
 		}
-		for(Jeu j : this.joueurs[0].getJeux()) {
-			if(jeu.getNom() == j.getNom()) {
-				if(((Humain) this.joueurs[0]).getMachines().contains(j.getPlateforme())) {
+		for(Jeu j : this.joueurs[1].getJeux()) {
+			if(jeu.getNom().equals(j.getNom())) {
+				if(((Humain) this.joueurs[1]).getMachines().contains(j.getPlateforme())) {
 					partiePossible = true;
-				} else {					
+				} else {
 					partiePossible = false;
 				}
 			}
 		}
 		
-		if(partiePossible) {
-			return 1;
-		}
-		if(!this.jeu.getAnnee().equals(Jeu.DATE_IA)) {
-			return 0;
-		}
-		return 2;
+		return partiePossible;
 	}
 	
-	public void jouer() {
-		int partiePossible = this.partiePossible();
-		if(partiePossible == 1) {
+	// ExceptionJoueur2DoitEtreUnBot
+	public boolean partiePossibleBot() {
+		boolean partiePossible = false;
+		for(Jeu j : this.joueurs[0].getJeux()) {
+			if(jeu.getNom().equals(j.getNom())) {
+				if(((Humain) this.joueurs[0]).getMachines().contains(j.getPlateforme())) {					
+					partiePossible = true;
+				}
+			}
+		}
+		for(Jeu j : this.joueurs[1].getJeux()) {
+			if(jeu.getNom().equals(j.getNom())) {
+				partiePossible = true;
+			}
+		}
+		if(Integer.parseInt(jeu.getAnnee()) < Integer.parseInt(Jeu.DATE_IA)) {
+			partiePossible = false;
+		}
+		return partiePossible;
+	}
+	
+	public void resultatsDePartie() {
+		boolean partiePossible = joueurs[1] instanceof Bot ? this.partiePossibleBot() : this.partiePossibleHumain();
+		if(partiePossible) {
 			// Ajout des parties jouées aux joueurs
 			// Victoire / défaite pour statistiques (random)
-		}
-	}
-	
-	public void gestionBot() {
-		int partiePossible = this.partiePossible();
-		if(partiePossible == 2) {
-			
 		}
 	}
 }
