@@ -2,6 +2,7 @@ package projet.java.joueurs;
 
 import java.util.Date;
 
+import projet.java.err.plusDePlace.PlusDePlaceCollectionJeuxException;
 import projet.java.jeux.Jeu;
 
 public class Bot extends Joueur {
@@ -39,6 +40,19 @@ public class Bot extends Joueur {
 			b.append("\t- " + j.affichageRapide());
 		}
 		return b.toString();
+	}
+	
+	@Override
+	public boolean ajouterJeu(Jeu j) throws PlusDePlaceCollectionJeuxException {
+		boolean jeuAjoute = super.ajouterJeu(j);
+		if(jeuAjoute) {
+			if(Integer.parseInt(j.getAnnee()) < Integer.parseInt(Jeu.DATE_IA)) {
+				System.out.println("Le jeu ne possède pas de module d'IA...");
+				this.getJeux().remove(j);
+				return false;
+			}
+		}
+		return jeuAjoute;
 	}
 	
 }

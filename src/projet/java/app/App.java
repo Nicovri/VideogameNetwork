@@ -1,38 +1,29 @@
 package projet.java.app;
 
 import java.io.BufferedReader;
-import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.FileReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
-import java.io.StringReader;
 import java.net.ConnectException;
 import java.net.HttpURLConnection;
-import java.net.MalformedURLException;
-import java.net.URI;
-import java.net.URISyntaxException;
 import java.net.URL;
 import java.net.UnknownHostException;
-import java.net.http.HttpClient;
-import java.net.http.HttpRequest;
-import java.net.http.HttpResponse;
-import java.nio.file.Paths;
+import java.text.ParseException;
 import java.time.Year;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Scanner;
 import java.util.SortedSet;
 import java.util.TreeSet;
 
+import projet.java.err.collecVide.ListeVideException;
+import projet.java.err.collecVide.SetVideException;
 import projet.java.jeux.Jeu;
-import projet.java.joueurs.Bot;
 import projet.java.joueurs.Enfant;
 import projet.java.joueurs.Gold;
+import projet.java.joueurs.Humain;
 import projet.java.joueurs.Joueur;
 import projet.java.joueurs.Standard;
 import projet.java.utils.Options;
@@ -42,6 +33,7 @@ import projet.java.utils.Pair;
  * Classe principale de l'application.
  * @author Nicolas Vrignaud
  *
+ * Arguments par défaut pour les tests : https://raw.githubusercontent.com/stef-aramp/video_games_sales/master/vgsales.csv 1
  */
 public class App {
 	private List<Jeu> dataJeux = new ArrayList<>();
@@ -71,8 +63,10 @@ public class App {
 	 * @param nombreJeux : nombre de jeux à stocker à partir de indiceDebut
 	 * 
 	 * @throws IOException
+	 * @throws SetVideException 
+	 * @throws ListeVideException 
 	 */
-	private App(String dataURL, int indiceDebut, int nombreJeux) throws IOException {
+	private App(String dataURL, int indiceDebut, int nombreJeux) throws IOException, SetVideException, ListeVideException {
 		URL url = new URL(dataURL);
 		HttpURLConnection response = (HttpURLConnection)url.openConnection();
 		
@@ -119,6 +113,13 @@ public class App {
 			}
 		}
 		
+		if(this.plateformes.isEmpty() || this.categories.isEmpty()) {
+			throw new SetVideException();
+		}
+		if(this.dataJeux.isEmpty()) {
+			throw new ListeVideException();
+		}
+		
 		// Ajout de joueurs par défaut pour tests
 		this.joueurs.put("nicolas", new Gold("nicolas", "nicolas@nicolas.com", new Date(), "DS"));
 		this.joueurs.put("john178", new Standard("john178", "John.178@gmail.com", new Date(), "PC"));
@@ -149,9 +150,8 @@ public class App {
 	 * 		- 2 pour JavaFX
 	 * 		- Un autre nombre ne lancera pas l'application
 	 * 
-	 * @throws IOException
 	 */
-	public static void main(String[] args) throws IOException {
+	public static void main(String[] args) {
 		App app = new App();
 		try {			
 			app = new App(args[0], 55, 100);
@@ -161,6 +161,11 @@ public class App {
 		} catch (ConnectException | UnknownHostException e) {
 			System.out.println("Pas de connexion à Internet pour obtenir les données sur les jeux, réessayez.");
 			e.printStackTrace();
+		} catch (SetVideException | ListeVideException e) {
+			System.out.println("Les données n'ont pas le bon format. Veuillez réessayer avec un fichier CSV approprié.");
+			e.printStackTrace();
+		} catch (IOException e) {
+			e.printStackTrace();
 		}
 		
 		// Si on entre autre chose qu'un nombre pour args[1], choix aura la valeur 0 et l'application ne se lancera pas
@@ -169,6 +174,7 @@ public class App {
 		try {			
 			choix = Integer.parseInt(args[1]);
 		} catch (NumberFormatException | IndexOutOfBoundsException e) {
+			System.out.println("Le choix du mode d'affichage n'a pas été correctement configuré.");
 			choix = 0;
 		}
 		
@@ -232,7 +238,7 @@ public class App {
 					break;
 				}
 			}
-			// Faire le nécessaire avant de quitter l'aplication (gestion d'exceptions ?, base de données, etc.)
+			// Faire le nécessaire avant de quitter l'aplication (gestion d'exceptions, base de données, etc.)
 			app.parametres.setFirst(Options.ACCUEIL);
 			app.parametres.setSecond("");
 			break;

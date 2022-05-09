@@ -1,18 +1,19 @@
 package projet.java.joueurs;
 
-import java.util.ArrayList;
+import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import projet.java.err.plusDePlace.PlusDePlaceNombreDePartiesException;
 import projet.java.jeux.PartieMultijoueurs;
+import projet.java.utils.Pair;
 
 public abstract class Humain extends Joueur {
 	// Attributs que les bots n'ont pas
-	protected Map<Date, PartieMultijoueurs> parties = new HashMap<>();
+	protected Map<String, PartieMultijoueurs> parties = new HashMap<>();
 	private Set<String> machinesDeJeu = new HashSet<>();
 		
 	private Humain(String pseudo, String email, Date dateNaissance) {
@@ -26,8 +27,6 @@ public abstract class Humain extends Joueur {
 	
 	public Set<String> getMachines() { return this.machinesDeJeu; }
 	
-	// A inclure dans une méthode de Menus
-	// Ne pas oublier de dire si la machine a été ajoutée ou non
 	public boolean ajouterNouvelleConsole(String console) {
 		int tailleAvant = this.machinesDeJeu.size();
 		this.machinesDeJeu.add(console);
@@ -37,6 +36,7 @@ public abstract class Humain extends Joueur {
 		}
 		return true;
 	}
+	
 	public boolean supprimerConsole(String console) {
 		if(this.machinesDeJeu.contains(console)) {
 			this.machinesDeJeu.remove(console);
@@ -45,23 +45,35 @@ public abstract class Humain extends Joueur {
 		return false;
 	}
 	
-	public void inscrire() {
-		// Si bot (interdit)
-		// Inscription d'un enfant passe par son parent/tuteur (1 ou 2 MAX) (mention de l'autre parent possible)
-		// Forcément amis avec ses parents/tuteurs
-	}
-	
-	// Profil privé (un bot ne peut pas voir son propre profil car ce n'est pas un humain)
+	// Profil privé (un bot ne peut pas voir son propre profil car ce n'est pas un humain, inutile dans la classe Bot, donc dans la classe Joueur)
 	@Override
 	public String toString() {
 		StringBuilder b = new StringBuilder();
 		b.append(this.getPseudo());
 		b.append("\n-  " + this.getEmail());
 		b.append("\n-  " + Joueur.DATE_NAISSANCE_FORMAT.format(this.getDateNaissance()) + "\n");
-		// Affichage des parties ?
 		for(String machine : this.machinesDeJeu) {
 			b.append(machine + " / ");
 		}
 		return b.toString();
+	}
+	
+	public Pair<String, Pair<Integer, Boolean>> ajouterPartie(PartieMultijoueurs pm) throws PlusDePlaceNombreDePartiesException {
+		int nbrPartiesCeJour = 0;
+		String ceJour = new SimpleDateFormat("yyyy/MM/dd").format(new Date());
+		String clePartie = new SimpleDateFormat("yyyy/MM/dd HH:mm:ss").format(new Date());
+		for(String d : this.parties.keySet()) {
+			if(d.contains(ceJour)) {
+				nbrPartiesCeJour++;
+			}
+		}
+		int tailleAvant = this.parties.size();
+		parties.put(clePartie, pm);
+		int tailleApres = this.parties.size();
+		if(tailleAvant == tailleApres) {
+			// Partie non ajoutée
+			return new Pair<>(clePartie, new Pair<>(nbrPartiesCeJour, false));
+		}
+		return new Pair<>(clePartie, new Pair<>(nbrPartiesCeJour + 1, true));
 	}
 }

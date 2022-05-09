@@ -1,10 +1,13 @@
 package projet.java.joueurs;
 
-import java.util.ArrayList;
 import java.util.Date;
-import java.util.List;
 
+import projet.java.err.plusDePlace.PlusDePlaceCollectionJeuxException;
+import projet.java.err.plusDePlace.PlusDePlaceListeAmisException;
+import projet.java.err.plusDePlace.PlusDePlaceNombreDePartiesException;
 import projet.java.jeux.Jeu;
+import projet.java.jeux.PartieMultijoueurs;
+import projet.java.utils.Pair;
 
 public class Enfant extends Humain {
 	private String[] parents = new String[]{"", ""};
@@ -19,13 +22,15 @@ public class Enfant extends Humain {
 	
 	public Enfant(String pseudo, String email, Date dateNaissance, String console, String futurStatut) {
 		this(pseudo, email, dateNaissance, console);
-		futurStatut = this.futurStatut; // Verifier que c'est soit S soit G
+		futurStatut = this.futurStatut;
 	}
 	
 	public String[] getPseudosParents() { return parents; }
 		
 	public void setPseudoParent1(String pseudo) { this.parents[0] = pseudo; }
 	public void setPseudoParent2(String pseudo) { this.parents[1] = pseudo; }
+	
+	public int getAmisMax() { return this.AMIS_MAX; }
 	
 	@Override
 	public String profilPublic() {
@@ -35,15 +40,23 @@ public class Enfant extends Humain {
 		return b.toString();
 	}
 	
+	public void inscrire(int parent1Ou2, Gold parent) throws PlusDePlaceListeAmisException {
+		if(parent1Ou2 == 1) {
+			this.setPseudoParent1(parent.getPseudo());
+		} else if(parent1Ou2 == 2) {
+			this.setPseudoParent2(parent.getPseudo());
+		}
+		this.ajouterAmi(parent);
+		parent.ajouterAmi(this);
+	}
+	
 	@Override
-	public boolean ajouterAmi(Joueur j) {
+	public boolean ajouterAmi(Joueur j) throws PlusDePlaceListeAmisException {
 		boolean amiAjoute = super.ajouterAmi(j);
 		if(amiAjoute) {
 			if(this.amis.size() > this.AMIS_MAX) {
 				this.amis.remove(j);
-				System.out.println("Plus de place dans la liste d'amis...");
-				return false;
-				// ExceptionPlusDePlaceListeAmis
+				throw new PlusDePlaceListeAmisException(this.AMIS_MAX);
 			}
 			if(!(j instanceof Enfant) && !(this.parents[0].contains(j.getPseudo()) || this.parents[1].contains(j.getPseudo()))) {
 				this.amis.remove(j);
@@ -56,7 +69,7 @@ public class Enfant extends Humain {
 	
 	@Override
 	public boolean supprimerAmi(Joueur j) {
-		boolean amiSupprime = super.ajouterAmi(j);
+		boolean amiSupprime = super.supprimerAmi(j);
 		if(amiSupprime) {
 			if(!(j instanceof Enfant) && (this.parents[0].contains(j.getPseudo()) || this.parents[1].contains(j.getPseudo()))) {
 				this.amis.add(j);
@@ -68,16 +81,26 @@ public class Enfant extends Humain {
 	}
 	
 	@Override
-	public boolean ajouterJeu(Jeu j) {
+	public boolean ajouterJeu(Jeu j) throws PlusDePlaceCollectionJeuxException {
 		boolean jeuAjoute = super.ajouterJeu(j);
 		if(jeuAjoute) {
 			if(this.jeux.size() > this.JEUX_MAX) {
 				this.jeux.remove(j);
-				System.out.println("Plus de place dans la collection de jeux...");
-				return false;
-				// ExceptionPlusDePlaceCollectionJeux
+				throw new PlusDePlaceCollectionJeuxException(this.JEUX_MAX);
 			}
 		}
 		return jeuAjoute;
+	}
+	
+	@Override
+	public Pair<String, Pair<Integer, Boolean>> ajouterPartie(PartieMultijoueurs pm) throws PlusDePlaceNombreDePartiesException {
+		Pair<String, Pair<Integer, Boolean>> res = super.ajouterPartie(pm);
+		if(res.getSecond().getSecond()) {
+			if(res.getSecond().getFirst() > this.PARTIES_MAX) {
+				this.parties.remove(res.getFirst());
+				throw new PlusDePlaceNombreDePartiesException(this.PARTIES_MAX);
+			}
+		}
+		return res;
 	}
 }

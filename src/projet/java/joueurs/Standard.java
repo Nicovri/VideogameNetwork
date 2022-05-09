@@ -2,7 +2,12 @@ package projet.java.joueurs;
 
 import java.util.Date;
 
+import projet.java.err.plusDePlace.PlusDePlaceCollectionJeuxException;
+import projet.java.err.plusDePlace.PlusDePlaceListeAmisException;
+import projet.java.err.plusDePlace.PlusDePlaceNombreDePartiesException;
 import projet.java.jeux.Jeu;
+import projet.java.jeux.PartieMultijoueurs;
+import projet.java.utils.Pair;
 
 public class Standard extends Gold {
 	private final int AMIS_MAX = 100;
@@ -13,30 +18,41 @@ public class Standard extends Gold {
 		super(pseudo, email, dateNaissance, console);
 	}
 	
+	public int getAmisMax() { return this.AMIS_MAX; }
+	
 	@Override
-	public boolean ajouterAmi(Joueur j) {
+	public boolean ajouterAmi(Joueur j) throws PlusDePlaceListeAmisException {
 		boolean amiAjoute = super.ajouterAmi(j);
 		if(amiAjoute) {
 			if(this.amis.size() > this.AMIS_MAX) {
 				this.amis.remove(j);
-				System.out.println("Plus de place dans la liste d'amis...");
-				// ExceptionPlusDePlaceListeAmis
+				throw new PlusDePlaceListeAmisException(this.AMIS_MAX);
 			}
 		}
 		return amiAjoute;
 	}
 	
 	@Override
-	public boolean ajouterJeu(Jeu j) {
+	public boolean ajouterJeu(Jeu j) throws PlusDePlaceCollectionJeuxException {
 		boolean jeuAjoute = super.ajouterJeu(j);
 		if(jeuAjoute) {
 			if(this.jeux.size() > this.JEUX_MAX) {
 				this.jeux.remove(j);
-				System.out.println("Plus de place dans la collection de jeux...");
-				return false;
-				// ExceptionPlusDePlaceCollectionJeux
+				throw new PlusDePlaceCollectionJeuxException(this.JEUX_MAX);
 			}
 		}
 		return jeuAjoute;
+	}
+	
+	@Override
+	public Pair<String, Pair<Integer, Boolean>> ajouterPartie(PartieMultijoueurs pm) throws PlusDePlaceNombreDePartiesException {
+		Pair<String, Pair<Integer, Boolean>> res = super.ajouterPartie(pm);
+		if(res.getSecond().getSecond()) {
+			if(res.getSecond().getFirst() > this.PARTIES_MAX) {
+				this.parties.remove(res.getFirst());
+				throw new PlusDePlaceNombreDePartiesException(this.PARTIES_MAX);
+			}
+		}
+		return res;
 	}
 }
