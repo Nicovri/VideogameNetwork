@@ -2,7 +2,22 @@ package projet.java.utils;
 
 import java.io.Serializable;
 
+/**
+ * Paire utilisée pour la liaison entre les 2 classes Menus et App.</br>
+ * </br>
+ * Plusieurs fonctions qui permettent d'obtenir les valeur, et de les modifier, soit une par une, soit toutes les deux.
+ * 
+ * @author Nicolas Vrignaud
+ *
+ * @param <F> : premier type générique
+ * @param <S> : deuxième type générique
+ * 
+ * @see projet.java.app.App
+ * @see projet.java.app.Menus
+ */
 public class Pair<F, S> implements Serializable {
+	private static final long serialVersionUID = -7038461186541031443L;
+	
 	F first;
 	S second;
 	

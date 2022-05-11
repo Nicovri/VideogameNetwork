@@ -1,19 +1,14 @@
 package projet.java.joueurs;
 
 import java.text.DateFormat;
-import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashSet;
 import java.util.Locale;
 import java.util.Set;
-import java.util.SortedSet;
-import java.util.TreeSet;
 
-import projet.java.err.nonTrouve.JoueurNonTrouveException;
 import projet.java.err.plusDePlace.PlusDePlaceCollectionJeuxException;
 import projet.java.err.plusDePlace.PlusDePlaceListeAmisException;
 import projet.java.jeux.Jeu;
-import projet.java.jeux.PartieMultijoueurs;
 
 public abstract class Joueur {
 	private String pseudo;
@@ -33,7 +28,7 @@ public abstract class Joueur {
 	
 	public String getPseudo() { return this.pseudo; };
 	protected String getEmail() { return this.email; }
-	protected Date getDateNaissance() { return this.dateDeNaissance; }
+	protected Date getDateNaissance() { return (Date) this.dateDeNaissance.clone(); }
 	
 	public Set<Jeu> getJeux() { return this.jeux; }
 	public Set<String> getAmis() {
@@ -119,6 +114,4 @@ public abstract class Joueur {
 		}
 		return false;
 	}
-
-	// JavaDoc (au niveau de la classe principale)
 }

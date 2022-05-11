@@ -3,8 +3,11 @@ package projet.java.app;
 import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.util.Calendar;
 import java.util.Collection;
 import java.util.Date;
+import java.util.GregorianCalendar;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Locale;
@@ -16,6 +19,7 @@ import java.util.SortedSet;
 import projet.java.err.joueur2.Joueur2NonHumainException;
 import projet.java.err.nonTrouve.JeuNonTrouveException;
 import projet.java.err.nonTrouve.JoueurNonTrouveException;
+import projet.java.err.nonTrouve.PartieNonTrouveeException;
 import projet.java.err.plusDePlace.PlusDePlaceCollectionJeuxException;
 import projet.java.err.plusDePlace.PlusDePlaceListeAmisException;
 import projet.java.err.plusDePlace.PlusDePlaceNombreDePartiesException;
@@ -31,16 +35,19 @@ import projet.java.utils.Options;
 import projet.java.utils.Pair;
 
 /**
- * Classe secondaire de l'application
+ * Classe secondaire de l'application.</br>
+ * Les sous-classes sont directement liées à la class projet.java.app.App et représentent les fonctionnalités disponibles.
+ * 
  * @author Nicolas Vrignaud
  * 
- * Les sous-classes sont directement liées à la class projet.java.app.App et représentent les fonctionnalités disponibles.
+ * @see projet.java.app.App
  *
  */
 public class Menus {
 	private static Pair<Options, String> resultat = new Pair<>();
 	
 	private final static String SEPARATEUR = "\n".concat("=====".repeat(15)).concat("\n");
+	
 	private final static DateFormat DATE_FORMAT = DateFormat.getDateInstance(DateFormat.LONG, Locale.FRENCH);
 	
 	private final static String CHOIX_QUITTER = "(Pour quitter, entrez Q)";
@@ -48,6 +55,15 @@ public class Menus {
 	private final static String CHOIX_OUI = "(Pour valider, entrez O)";
 	private final static String CHOIX_NON = "(Pour refuser, entrez N)";
 	
+	/**
+	 * Retourne le jeu ayant le rang demandé parmi une collection d'objets {@code Jeu}.
+	 * 
+	 * @param jeux : collection de jeux
+	 * @param rang : le rang du jeu à retourner
+	 * 
+	 * @return le jeu ayant le rang souhaité en donnée membre, s'il existe, sinon
+	 * @throws JeuNonTrouveException
+	 */
 	private static Jeu trouverJeuSelonRang(Collection<Jeu> jeux, int rang) throws JeuNonTrouveException {
 		for(Jeu jeu : jeux) {
 			if(jeu.getRang() == rang) {
@@ -57,6 +73,14 @@ public class Menus {
 		throw new JeuNonTrouveException();
 	}
 	
+	/**
+	 * Même fonctionnalité que {@code trouverJeuSelonRang}, sauf que la fonction affiche le jeu au lieu de le retourner.
+	 * 
+	 * @param jeux
+	 * @param rang
+	 * 
+	 * @throws JeuNonTrouveException
+	 */
 	private static void afficherDetailsJeuSelonRang(Collection<Jeu> jeux, int rang) throws JeuNonTrouveException {
 		Jeu jeu = trouverJeuSelonRang(jeux, rang);
 		System.out.println(Menus.SEPARATEUR);
@@ -64,6 +88,17 @@ public class Menus {
 		System.out.println(Menus.SEPARATEUR);
 	}
 	
+	/**
+	 * Retourne la liste des pseudos des amis d'un joueur en enlevant les joueurs de l'instance {@code Bot}.
+	 * Elle ajoute une sécurité avant d'appliquer d'autres méthodes pour éviter des actions indésirables.
+	 * (notamment offrir un jeu ou jouer avec un ami)
+	 * 
+	 * @param joueurs : la map des joueurs de l'application avec pour clé leur pseudo
+	 * @param joueurActif : le pseudo du joueur actif au moment de l'appel de la fonction
+	 * 
+	 * @return la liste des amis de {@code joueurActif} après avoir enlevé les bots, s'il y en a, sinon
+	 * @throws JoueurNonTrouveException : aucun ami trouvé
+	 */
 	private static Set<String> listeAmisSansBots(Map<String, Joueur> joueurs, String joueurActif) throws JoueurNonTrouveException {
 		Set<String> amisSansBots = new HashSet<>();
 		int c = 0;
@@ -84,6 +119,17 @@ public class Menus {
 		return amisSansBots;
 	}
 	
+	/**
+	 * Retourne la liste des amis qui peuvent jouer avec nous à un jeu passé en paramètres.
+	 * 
+	 * @param joueurs : la map des joueurs de l'application avec pour clé leur pseudo
+	 * @param jeu : le jeu auquel le joueur voudrait jouer
+	 * @param joueurActif : le pseudo du joueur actif au moment de l'appel de la fonction
+	 * 
+	 * @return la liste des amis de {@code joueurActif} après avoir enlevé les bots et qui peuvent jouer au jeu, s'il y en a, sinon
+	 * @throws JoueurNonTrouveException : aucun ami trouvé
+	 * @throws Joueur2NonHumainException : si le joueur n'est pas un humain, lors de l'appel de {@code pm.partiePossibleHumain()}
+	 */
 	private static Set<String> listeAmisPouvantJouer(Map<String, Joueur> joueurs, Jeu jeu, String joueurActif) throws JoueurNonTrouveException, Joueur2NonHumainException {
 		Set<String> amisSansBotsPouvantJouer = listeAmisSansBots(joueurs, joueurActif);
 		for(String pseudo : amisSansBotsPouvantJouer) {
@@ -95,6 +141,13 @@ public class Menus {
 		return amisSansBotsPouvantJouer;
 	}
 	
+	/**
+	 * Obtenir tous les bots présents dans l'application.
+	 * 
+	 * @param joueurs : la map des joueurs de l'application avec pour clé leur pseudo
+	 * 
+	 * @return la liste de {@code Bot} parmi tous les joueurs
+	 */
 	private static Set<String> listeBots(Map<String, Joueur> joueurs) {
 		Set<String> bots = new HashSet<>();
 		for(String pseudo : joueurs.keySet()) {
@@ -105,7 +158,14 @@ public class Menus {
 		return bots;
 	}
 	
-	// Au plus 1 bot par jeu (TODO: indépendemment de la console)
+	/**
+	 * Gestionnaire des bots présents dans l'application.
+	 * 
+	 * On aura après l'appel de cette fonction 1 seul bot par jeu.
+	 * TODO : indépendamment de la console.
+	 * 
+	 * @param joueurs : la map des joueurs de l'application avec pour clé leur pseudo
+	 */
 	private static void gestionBots(Map<String, Joueur> joueurs) {
 		Set<String> bots = listeBots(joueurs);
 		Set<String> botsEnTrop = new HashSet<>();
@@ -132,8 +192,19 @@ public class Menus {
 		}
 	}
 	
-	// Hypothèse : Un bot peut jouer à plusieurs parties du même jeu en même temps
-	// Mais pas 2 parties de jeux différents en même temps
+	/**
+	 * Gestionnaire d'un partie avec un bot.</br>
+	 * Soit on crée un nouveau bot et on le retourne, soit on retourne un bot déjà existant auquel
+	 * on ajoute (si nécessaire) le jeu demandé.</br>
+	 * </br>
+	 * Hypothèse : Un bot peut jouer à plusieurs parties du même jeu en même temps
+	 * mais pas 2 parties de jeux différents en même temps.
+	 * 
+	 * @param joueurs : la map des joueurs de l'application avec pour clé leur pseudo
+	 * @param jeu : le jeu demandé lors d'une nouvelle partie
+	 * 
+	 * @return le pseudo du bot avec lequel on peut jouer
+	 */
 	private static String gestionPartieAvecBots(Map<String, Joueur> joueurs, Jeu jeu) {
 		Set<String> bots = listeBots(joueurs);
 		String nomBot = Bot.PSEUDO_BOT + Bot.getId();
@@ -162,9 +233,24 @@ public class Menus {
 		}
 	}
 	
-	// 10 joueurs au maximum retournés
-	// Joueurs qui possèdent le plus de jeux en commun (et ayant la possibilité de jouer, càd la console appropriée à leur jeu)
-	// Si on ne peut pas départager, joueurs qui possèdent de la place dans leur liste d'amis (avec les conditions des Enfants et des Adultes)
+	/**
+	 * Retourne la liste des joueurs avec lesquels on peut jouer au jeu passé en paramètres.</br>
+	 * Les amis ne sont pas exclus lors de la recherche.
+	 * </br>
+	 * Hypothèse : 10 joueurs au maximum retournés, et qui sont :
+	 * <ul>
+	 * <li>Les joueurs qui possèdent le plus de jeux en commun et ayant la possibilité de jouer,
+	 * càd ayant la console appropriée à leur jeu et respectant les conditions d'ajout en tant qu'ami</li>
+	 * <li>Si on ne peut pas départager, les joueurs qui possèdent de la place dans leur liste d'amis</li>
+	 * </ul> 
+	 * 
+	 * @param joueurs : la map des joueurs de l'application avec pour clé leur pseudo
+	 * @param jeu : le jeu demandé lors d'une nouvelle partie
+	 * @param joueurActif : le pseudo du joueur actif au moment de l'appel de la fonction
+	 * 
+	 * @return la liste des joueurs qui peuvent jouer avec nous au jeu demandé, s'il y en a, sinon
+	 * @throws JoueurNonTrouveException : aucun ami trouvé
+	 */
 	private static Set<String> listeJoueursAdaptesPourJouer(Map<String, Joueur> joueurs, Jeu jeu, String joueurActif) throws JoueurNonTrouveException {
 		Set<String> joueursAdaptes = new HashSet<>();
 		int c = joueurs.size();
@@ -172,26 +258,28 @@ public class Menus {
 			System.out.println("Vous n'avez pas encore d'amis dans votre liste.");
 			throw new JoueurNonTrouveException();
 		}
-		while(joueursAdaptes.size() < 10 || c == 0) {
+		while(joueursAdaptes.size() < 10 && c > 0) {
 			for(Joueur j : joueurs.values()) {
-				// Pour chacun des jeux du joueur j
-				for(Jeu je : j.getJeux()) {
-					// On vérifie que le nom du jeu entré en paramètre et le nom du jeu est le même
-					if(jeu.getNom().equals(je.getNom())) {
-						// S'il est le même, on vérifie qu'il possède la console appropriée (à son propre jeu)
-						if(((Humain) j).getMachines().contains(je.getPlateforme())) {
-							// On regarde s'il peut accepter de nouveaux amis selon la relation entre les 2 joueurs
-							if(joueurs.get(joueurActif) instanceof Gold && !(j instanceof Enfant)) {
-								if(j instanceof Standard && j.getAmis().size() < ((Standard)j).getAmisMax()) {
-									joueursAdaptes.add(j.getPseudo());
+				if(j instanceof Humain && !j.getPseudo().equals(joueurs.get(joueurActif).getPseudo())) {
+					// Pour chacun des jeux du joueur j
+					for(Jeu je : j.getJeux()) {
+						// On vérifie que le nom du jeu entré en paramètre et le nom du jeu est le même
+						if(jeu.getNom().equals(je.getNom())) {
+							// S'il est le même, on vérifie qu'il possède la console appropriée (à son propre jeu)
+							if(((Humain) j).getMachines().contains(je.getPlateforme())) {
+								// On regarde s'il peut accepter de nouveaux amis selon la relation entre les 2 joueurs
+								if(joueurs.get(joueurActif) instanceof Gold && !(j instanceof Enfant)) {
+									if(j instanceof Standard && j.getAmis().size() < ((Standard)j).getAmisMax()) {
+										joueursAdaptes.add(j.getPseudo());
+									}
+									if(j instanceof Gold) {
+										joueursAdaptes.add(j.getPseudo());
+									}
 								}
-								if(j instanceof Gold) {
-									joueursAdaptes.add(j.getPseudo());
-								}
-							}
-							if(joueurs.get(joueurActif) instanceof Enfant && j instanceof Enfant) {
-								if(j.getAmis().size() < ((Enfant)j).getAmisMax()) {									
-									joueursAdaptes.add(j.getPseudo());
+								if(joueurs.get(joueurActif) instanceof Enfant && j instanceof Enfant) {
+									if(j.getAmis().size() < ((Enfant)j).getAmisMax()) {									
+										joueursAdaptes.add(j.getPseudo());
+									}
 								}
 							}
 						}
@@ -207,9 +295,39 @@ public class Menus {
 		return joueursAdaptes;
 	}
 	
+	
+	/**
+	 * Tout ce qui concerne le {@code Joueur} en lui même (création du compte, connexion, accueil du joueur sur son profil, affichage du profil, déconnexion)
+	 * 
+	 * @author Nicolas Vrignaud
+	 * 
+	 * @see projet.java.app.Menus
+	 */
 	public static class Profil {
 		
+		/**
+		 * Création interactive du compte {@code Joueur} en mode CLI.</br>
+		 * 
+		 * <ul>
+		 * Elle passe par les étapes suivantes
+		 * <li>Pseudo : nouveau et plus de 3 caractères</li>
+		 * <li>Email : mot1@mot2.extension (extension sera soit com, soit fr, soit org)</li>
+		 * <li>Date de naissance : doit être un format valide (sourtout concernant le mois et le jour)</li>
+		 * <li>Console personnelle : affichage de la liste des consoles disponibles et choix du numéro associé</li>
+		 * </br>
+		 * <li>Récapitulatif : affichage</li>
+		 * <li>Statut : Standard ou Gold (ce statut sera sauvegardé pour plus tard dans le cas d'un enfant)</li>
+		 * <li>Fin : ajout du joueur / recommencer / quitter / erreur</li>
+		 * </ul>
+		 * 
+		 * @param joueurs : la map des joueurs de l'application avec pour clé leur pseudo
+		 * @param plateformes : le set des plateformes de jeu disponibles
+		 * @param estEnfant : le joueur à inscrire est-il un enfant ?
+		 * 
+		 * @return l'objet {@code Pair<Options, String>} à récupérer pour le bon fonctionnement dans la classe principale
+		 */
 		private static Pair<Options, String> creationCompte(Map<String, Joueur> joueurs, SortedSet<String> plateformes, boolean estEnfant) {
+			// Choix du futur pseudo (ne doit pas déjà exister et doit faire plus de 3 caractères)
 			System.out.print("Pseudo: ");
 			Scanner sc = new Scanner(System.in);
 			String pseudo = sc.nextLine();
@@ -230,6 +348,7 @@ public class Menus {
 				}
 			}
 			
+			// Choix de l'email (doit respecter quelques critères)
 			System.out.print("Email: ");
 			sc = new Scanner(System.in);
 			String email = sc.nextLine();
@@ -240,6 +359,7 @@ public class Menus {
 				email = sc.nextLine();
 			}
 			
+			// Choix de la date de naissance
 			System.out.print("Date de naissance (AAAA/MM/JJ): ");
 			sc = new Scanner(System.in);
 			String date = sc.nextLine();
@@ -256,6 +376,7 @@ public class Menus {
 				e.printStackTrace();
 			}
 			
+			// Choix de sa console personnelle (une seule, celle qu'on possède à l'inscription)
 			Object[] p = plateformes.toArray();
 			int nombre = p.length + 1;
 			for(int i = 0; i < p.length; i++) {
@@ -280,6 +401,7 @@ public class Menus {
 			}
 			String console = (String) p[indexConsole - 1];
 			
+			// Récapitulatif
 			System.out.print(Menus.SEPARATEUR);
 			System.out.println("Récapitulatif...");
 			System.out.println("Pseudo: " + pseudo);
@@ -288,6 +410,7 @@ public class Menus {
 			System.out.println("Console: " + console);
 			System.out.println(Menus.SEPARATEUR);
 			
+			// Choix du statut et ajout du joueur (si possible)
 			System.out.println(Menus.CHOIX_QUITTER);
 			System.out.println(Menus.CHOIX_RECOMMENCER);
 			System.out.println("Choisissez votre statut.");
@@ -359,36 +482,46 @@ public class Menus {
 			return resultat;
 		}
 		
-		// Connexion (sans gestion de mot de passe pour l'instant)
+		/**
+		 * Connexion d'un joueur à l'application.</br>
+		 * (sans gestion de mot de passe pour l'instant)</br>
+		 * </br>
+		 * Si lors de la connexion, un enfant a atteint 18 ans, il change de statut et obtient le futur statut qu'il avait enregistré à la création de son compte.
+		 * 
+		 * @param joueurs : la map des joueurs de l'application avec pour clé leur pseudo
+		 * @param plateformes : le set des plateformes de jeu disponibles
+		 * @return l'objet {@code Pair<Options, String>} à récupérer pour le bon fonctionnement dans la classe principale
+		 */
 		private static Pair<Options, String> connexion(Map<String, Joueur> joueurs, SortedSet<String> plateformes) {
 			System.out.print("Votre pseudo: ");
 			Scanner sc = new Scanner(System.in);
 			String pseudo = sc.nextLine();
 			
 			if(!joueurs.isEmpty()) {
-				while(joueurs.get(pseudo) == null) {
-					// Q et R ne peuvent pas être un pseudo car il doit contenir au moins 3 caractères
+				while(!joueurs.containsKey(pseudo)) {
+					// Q ne peut pas être un pseudo car il doit contenir au moins 3 caractères
+					if(pseudo.equals("Q")) {
+						resultat.setBoth(Options.ACCUEIL, "");
+						return resultat;
+					}
 					System.out.println(Menus.CHOIX_QUITTER);
-					System.out.println(Menus.CHOIX_RECOMMENCER);
 			        System.out.println("Le pseudo est inexistant. Veuillez entrer votre pseudo.");
 			        System.out.print("Pseudo: ");
 					sc = new Scanner(System.in);
 					pseudo = sc.nextLine();
 				}
-				switch(pseudo) {
-				case "R":
-					resultat.setFirst(Options.ACCUEIL);
-					resultat.setSecond("");
-					break;
-				case "Q":
-					resultat.setFirst(Options.QUITTER);
-					resultat.setSecond("");
-					break;
-				default:
-					resultat.setFirst(Options.AFFICHAGE_PROFIL);
-					resultat.setSecond(pseudo);
-					break;
+				
+				if(joueurs.get(pseudo) instanceof Enfant) {
+					if(((Enfant)joueurs.get(pseudo)).aPlusDe18Ans()) {
+						Humain adulte = ((Enfant)joueurs.get(pseudo)).devenirAdulte();
+						joueurs.replace(pseudo, adulte);
+						System.out.println("Vous avez maintenant plus de 18 ans !\nVous pouvez utiliser toutes les fonctionalités disponibles !");
+					}
 				}
+				
+				resultat.setFirst(Options.AFFICHAGE_PROFIL);
+				resultat.setSecond(pseudo);
+					
 			} else {
 				System.out.println("\nAucun joueurs inscrits. Retour à l'écran d'accueil...");
 				resultat.setFirst(Options.ACCUEIL);
@@ -397,6 +530,15 @@ public class Menus {
 			return resultat;
 		}
 		
+		/**
+		 * Accueil interactif du joueur.</br>
+		 * (choix entre création de compte / connexion / quitter l'application)
+		 * 
+		 * @param joueurs : la map des joueurs de l'application avec pour clé leur pseudo
+		 * @param plateformes : le set des plateformes de jeu disponibles
+		 * 
+		 * @return l'objet {@code Pair<Options, String>} à récupérer pour le bon fonctionnement dans la classe principale
+		 */
 		public static Pair<Options, String> accueilJoueur(Map<String, Joueur> joueurs, SortedSet<String> plateformes) {
 			System.out.print(Menus.SEPARATEUR);
 			System.out.print("1. Création de compte\n2. Connexion\n3. Quitter");
@@ -426,6 +568,17 @@ public class Menus {
 			return resultat;
 		}
 		
+		/**
+		 * Affichage du profil privé d'un joueur et menus du choix de la prochaine action.</br>
+		 * </br>
+		 * Affichage du titre de chaque {@code Options} (s'il elle est censé apparaitre dans ce menu)</br>
+		 * Choix par le joueur d'une des options.
+		 * 
+		 * @param joueurs : la map des joueurs de l'application avec pour clé leur pseudo
+		 * @param joueurActif : le pseudo du joueur actif au moment de l'appel de la fonction
+		 * 
+		 * @return l'objet {@code Pair<Options, String>} à récupérer pour le bon fonctionnement dans la classe principale
+		 */
 		public static Pair<Options, String> afficherProfil(Map<String, Joueur> joueurs, String joueurActif) {
 			if(joueurs.isEmpty()) {
 				resultat.setBoth(Options.ACCUEIL, "");
@@ -475,6 +628,13 @@ public class Menus {
 			return resultat;
 		}
 
+		/**
+		 * Déconnexion de l'application. Retourne à l'écran d'accueil si le choix final est oui.
+		 * 
+		 * @param joueurActif : le pseudo du joueur actif au moment de l'appel de la fonction
+		 * 
+		 * @return l'objet {@code Pair<Options, String>} à récupérer pour le bon fonctionnement dans la classe principale
+		 */
 		public static Pair<Options, String> deconnexion(String joueurActif) {
 			System.out.println("Etes-vous sûr(e) de vouloir vous déconnecter ?");
 			System.out.println(Menus.CHOIX_OUI);
@@ -500,10 +660,32 @@ public class Menus {
 		}
 	}
 	
+	/**
+	 * Tout ce qui concerne les interactions entre le {@code Joueur} et d'autres joueurs.</br>
+	 * (inscription de son enfant, ajout d'un ami, suppression d'un ami, offre d'un jeu à un ami)
+	 * 
+	 * @author Nicolas Vrignaud
+	 * 
+	 * @see projet.java.app.Menus
+	 *
+	 */
 	public static class Interactions {
 		
-		// On suppose qu'après inscription, sa liste de parents/tuteurs ne peut pas être modifée (elle contient donc soit 1 soit 2 Joueurs)
-		// On suppose (pour l'instant) qu'un parent ne peut plus mentionner son enfant s'il s'inscrit après lui (cas du 2e parent)
+		/**
+		 * Inscription interactive par le parent 1 de son {@code Enfant}.</br>
+		 * Ajout réciproque à la liste d'amis (si impossible, exception).</br>
+		 * Choix d'un parent 2.</br>
+		 * </br>
+		 * Hypothèses :</br>
+		 * On suppose qu'après inscription, sa liste de parents/tuteurs ne peut pas être modifée (elle contient donc soit 1 soit 2 Joueurs).</br>
+		 * On suppose (pour l'instant) qu'un parent ne peut plus mentionner son enfant s'il s'inscrit après lui (cas du 2e parent).
+		 * 
+		 * @param joueurs : la map des joueurs de l'application avec pour clé leur pseudo
+		 * @param plateformes : le set des plateformes de jeu disponibles
+		 * @param joueurActif : le pseudo du joueur actif au moment de l'appel de la fonction
+		 * 
+		 * @return l'objet {@code Pair<Options, String>} à récupérer pour le bon fonctionnement dans la classe principale
+		 */
 		public static Pair<Options, String> inscrireSonEnfant(Map<String, Joueur> joueurs, SortedSet<String> plateformes, String joueurActif) {
 			if(joueurs.isEmpty()) {
 				resultat.setBoth(Options.ACCUEIL, "");
@@ -567,6 +749,19 @@ public class Menus {
 			return resultat;
 		}
 		
+		/**
+		 * Ajout interactive d'un ami dans sa liste d'amis.</br>
+		 * </br>
+		 * Il faut bien sûr que le pseudo existe et que l'ami puisse être ajouté (réciproquement).</br>
+		 * Un enfant ne peut pas retirer un parent/tuteur de sa liste d'amis (et inversement).</br>
+		 * Une liste d'ami peut être complète, et donc propager une exception.</br>
+		 * La demande est forcément acceptée par le futur ami.
+		 * 
+		 * @param joueurs : la map des joueurs de l'application avec pour clé leur pseudo
+		 * @param joueurActif : le pseudo du joueur actif au moment de l'appel de la fonction
+		 * 
+		 * @return l'objet {@code Pair<Options, String>} à récupérer pour le bon fonctionnement dans la classe principale
+		 */
 		public static Pair<Options, String> ajouterAmi(Map<String, Joueur> joueurs, String joueurActif) {
 			if(joueurs.isEmpty()) {
 				resultat.setBoth(Options.ACCUEIL, "");
@@ -628,6 +823,16 @@ public class Menus {
 			return resultat;
 		}
 		
+		/**
+		 * Suppression d'un ami de sa liste d'amis.</br>
+		 * </br>
+		 * La suppression est réciproque et se fait sans attente d'une confirmation de la part de l'ami.
+		 * 
+		 * @param joueurs : la map des joueurs de l'application avec pour clé leur pseudo
+		 * @param joueurActif : le pseudo du joueur actif au moment de l'appel de la fonction
+		 * 
+		 * @return l'objet {@code Pair<Options, String>} à récupérer pour le bon fonctionnement dans la classe principale
+		 */
 		public static Pair<Options, String> supprimerAmi(Map<String, Joueur> joueurs, String joueurActif) {
 			if(joueurs.isEmpty()) {
 				resultat.setBoth(Options.ACCUEIL, "");
@@ -680,6 +885,23 @@ public class Menus {
 			return resultat;
 		}
 		
+		/**
+		 * Offre interactive d'un jeu à un ami.</br>
+		 * </br>
+		 * - Affichage des jeux possédés (fonction dédiée)</br>
+		 * - Affichage des détails du jeu choisi (selon son rang)</br>
+		 * - Offre du jeu à un ami ? O/N</br>
+		 * - Offre du jeu (sauf si exception ou refus)
+		 * 
+		 * @param joueurs : la map des joueurs de l'application avec pour clé leur pseudo
+		 * @param plateformes : le set des plateformes de jeu disponibles
+		 * @param genres : le set des genres de jeu disponibles
+		 * @param joueurActif : le pseudo du joueur actif au moment de l'appel de la fonction
+		 * 
+		 * @return l'objet {@code Pair<Options, String>} à récupérer pour le bon fonctionnement dans la classe principale
+		 * 
+		 * @see projet.java.app.Menus.CollectionJeux
+		 */
 		public static Pair<Options, String> offrirJeu(Map<String, Joueur> joueurs, SortedSet<String> plateformes, SortedSet<String> genres, String joueurActif) {
 			if(joueurs.isEmpty()) {
 				resultat.setBoth(Options.ACCUEIL, "");
@@ -797,7 +1019,29 @@ public class Menus {
 		}
 	}
 	
+	/**
+	 * Tout ce qui concerne les changements de console d'un {@code Joueur}.</br>
+	 * (ajout d'une nouvelle console, suppression d'une console qui ne marche plus)</br>
+	 * Pour plus de facilités, ces 2 fonctionalités sont inclues dans une 3e fonction qui laisse l'utilisateur choisir entre les 2.
+	 * 
+	 * @author Nicolas Vrignaud
+	 *
+	 *@see projet.java.app.Menus
+	 */
 	public static class Consoles {
+		/**
+		 * Ajout d'une nouvelle console à celles qu'on possède parmi celles disponibles.</br>
+		 * </br>
+		 * - Affichage des consoles disponibles</br>
+		 * - Choix du numéro associé</br>
+		 * - Ajout à la liste des consoles</br>
+		 * 
+		 * @param joueurs : la map des joueurs de l'application avec pour clé leur pseudo
+		 * @param plateformes : le set des plateformes de jeu disponibles
+		 * @param joueurActif : le pseudo du joueur actif au moment de l'appel de la fonction
+		 * 
+		 * @return l'objet {@code Pair<Options, String>} à récupérer pour le bon fonctionnement dans la classe principale
+		 */
 		private static Pair<Options, String> ajouterNouvelleConsole(Map<String, Joueur> joueurs, SortedSet<String> plateformes, String joueurActif) {
 			if(joueurs.isEmpty()) {
 				resultat.setBoth(Options.ACCUEIL, "");
@@ -814,17 +1058,28 @@ public class Menus {
 			Scanner sc = new Scanner(System.in);
 			String choix = sc.nextLine();
 			while(!choix.matches("\\d+")) {
+				if(choix.equals("Q")) {
+					resultat.setFirst(Options.AFFICHAGE_PROFIL);
+					resultat.setSecond(joueurActif);
+					return resultat;
+				}
 				System.out.println("Veuillez choisir un nombre.");
 				System.out.print("Console à ajouter : ");
 				sc = new Scanner(System.in);
 				choix = sc.nextLine();
 			}
+			
 			int indexConsole = Integer.parseInt(choix);
 			while(indexConsole <= 0 || indexConsole > nombre) {
 				System.out.println("Veuillez choisir un nombre entre 1 et " + nombre + ".");
 				System.out.print("Console à ajouter : ");
 				sc = new Scanner(System.in);
 				choix = sc.nextLine();
+				if(choix.equals("Q")) {
+					resultat.setFirst(Options.AFFICHAGE_PROFIL);
+					resultat.setSecond(joueurActif);
+					return resultat;
+				}
 				indexConsole = Integer.parseInt(choix);
 			}
 			String console = (String) p[indexConsole - 1];
@@ -842,6 +1097,16 @@ public class Menus {
 			return resultat;
 		}
 		
+		/**
+		 * Suppression de l'une de ses consoles selon le numéro associé.</br>
+		 * (si on n'a pas de consoles, la fonction retourne directement une valeur)
+		 * 
+		 * @param joueurs : la map des joueurs de l'application avec pour clé leur pseudo
+		 * @param plateformes : le set des plateformes de jeu disponibles
+		 * @param joueurActif : le pseudo du joueur actif au moment de l'appel de la fonction
+		 * 
+		 * @return l'objet {@code Pair<Options, String>} à récupérer pour le bon fonctionnement dans la classe principale
+		 */
 		private static Pair<Options, String> supprimerConsole(Map<String, Joueur> joueurs, SortedSet<String> plateformes, String joueurActif) {
 			if(joueurs.isEmpty()) {
 				resultat.setBoth(Options.ACCUEIL, "");
@@ -865,7 +1130,13 @@ public class Menus {
 			System.out.print("Choisir une console à supprimer (choisir le numéro associé) : ");
 			Scanner sc = new Scanner(System.in);
 			String choix = sc.nextLine();
+			
 			while(!choix.matches("\\d+")) {
+				if(choix.equals("Q")) {
+					resultat.setFirst(Options.AFFICHAGE_PROFIL);
+					resultat.setSecond(joueurActif);
+					return resultat;
+				}
 				System.out.println("Veuillez choisir un nombre.");
 				System.out.print("Console à supprimer : ");
 				sc = new Scanner(System.in);
@@ -878,6 +1149,11 @@ public class Menus {
 				System.out.print("Console à supprimer : ");
 				sc = new Scanner(System.in);
 				choix = sc.nextLine();
+				if(choix.equals("Q")) {
+					resultat.setFirst(Options.AFFICHAGE_PROFIL);
+					resultat.setSecond(joueurActif);
+					return resultat;
+				}
 				indexConsole = Integer.parseInt(choix);
 			}
 			String console = (String) m.toArray()[indexConsole - 1];
@@ -895,6 +1171,16 @@ public class Menus {
 			return resultat;
 		}
 		
+		/**
+		 * Gestion interactif des consoles du joueur.</br>
+		 * (choix entre ajout / suppression)
+		 * 
+		 * @param joueurs : la map des joueurs de l'application avec pour clé leur pseudo
+		 * @param plateformes : le set des plateformes de jeu disponibles
+		 * @param joueurActif : le pseudo du joueur actif au moment de l'appel de la fonction
+		 * 
+		 * @return l'objet {@code Pair<Options, String>} à récupérer pour le bon fonctionnement dans la classe principale
+		 */
 		public static Pair<Options, String> gestionConsoles(Map<String, Joueur> joueurs, SortedSet<String> plateformes, String joueurActif) {
 			System.out.print(Menus.SEPARATEUR);
 			System.out.print("1. Ajouter une console\n2. Supprimer une console");
@@ -921,7 +1207,26 @@ public class Menus {
 		}
 	}
 	
+	/**
+	 * Tout ce qui concerne les collections de {@code Jeu}.</br>
+	 * (affichage d'une liste de jeux et affichage des détails sur un jeu)
+	 * 
+	 * @author Nicolas Vrignaud
+	 *
+	 * @see projet.java.app.Menus
+	 */
 	public static class CollectionJeux {
+		/**
+		 * Affiche la liste des jeux en paramètres.</br>
+		 * (par plateforme ou par genre selon le choix de l'utilisateur)
+		 * 
+		 * @param jeux : collection de jeux
+		 * @param plateformes : le set des plateformes de jeu disponibles
+		 * @param genres : le set des genres de jeu disponibles
+		 * @param joueurActif : le pseudo du joueur actif au moment de l'appel de la fonction
+		 * 
+		 * @return l'objet {@code Pair<Options, String>} à récupérer pour le bon fonctionnement dans la classe principale
+		 */
 		public static Pair<Options, String> afficherListeJeux(Collection<Jeu> jeux, SortedSet<String> plateformes, SortedSet<String> genres, String joueurActif) {
 			if(jeux.isEmpty()) {
 				System.out.println("Aucun jeux dans votre collection...");
@@ -931,7 +1236,7 @@ public class Menus {
 			}
 			
 			System.out.print(Menus.SEPARATEUR);
-			System.out.print("1. Jeux classés par machine\n2. Jeux classés par genre");
+			System.out.print("1. Jeux classés par machine\n2. Jeux classés par genre\n3. Recherche du titre");
 			System.out.print(Menus.SEPARATEUR);
 			System.out.print("Votre choix : ");
 			Scanner sc = new Scanner(System.in);
@@ -969,10 +1274,27 @@ public class Menus {
 					System.out.println(((Jeu) arrayJeuxTries[i]).affichageRapide());
 				}
 				break;
+			case "3":
+				System.out.print("Mot clé : ");
+				sc = new Scanner(System.in);
+				choix = sc.nextLine();
+				
+				jeuxTries = Jeu.rechercheMotCleTitre(jeux, choix);
+				
+				arrayJeuxTries = jeuxTries.toArray();
+				for(Jeu j : jeuxTries) {
+					System.out.println(j.affichageRapide());
+				}
+				break;
 			default:
 				System.out.println("Veuillez choisir une des options ci-dessous.");
 				resultat.setFirst(Options.COLLECTION);
 				resultat.setSecond(joueurActif);
+				return resultat;
+			}
+			if(jeuxTries.isEmpty()) {
+				System.out.println("Aucun jeu ne correspond...");
+				resultat.setFirst(Options.AFFICHAGE_PROFIL);
 				return resultat;
 			}
 			resultat.setFirst(Options.DETAILS_JEU_PERSO);
@@ -980,6 +1302,14 @@ public class Menus {
 			return resultat;
 		}
 		
+		/**
+		 * Affichage des détails d'un {@code Jeu} d'une collection selon son rang.</br>
+		 * 
+		 * @param jeux : collection de jeux
+		 * @param joueurActif : le pseudo du joueur actif au moment de l'appel de la fonction
+		 * 
+		 * @return l'objet {@code Pair<Options, String>} à récupérer pour le bon fonctionnement dans la classe principale
+		 */
 		public static Pair<Integer, Pair<Options, String>> afficherDetailsJeu(Collection<Jeu> jeux, String joueurActif) {
 			if(jeux.isEmpty()) {
 				System.out.println("Aucun jeux dans votre collection...");
@@ -1023,7 +1353,34 @@ public class Menus {
 		}
 	}
 	
+	/**
+	 * Tout ce qui concerne l'achat d'un {@code Jeu}.</br>
+	 * (achat d'un jeu qui passe par les fonctions d'affichage de jeux)
+	 * 
+	 * @author Nicolas Vrignaud
+	 *
+	 * @see projet.java.app.Menus
+	 * @see projet.java.app.Menus.CollectionJeux
+	 */
 	public static class Boutique {
+		/**
+		 * Achat interactif d'un jeu dans la boutique.</br>
+		 * </br>
+		 * - Affichage des jeux disponibles (fonction dédiée)</br>
+		 * - Affichage des détails du jeu choisi (selon son rang)</br>
+		 * - Achat du jeu ? O/N</br>
+		 * - Achat (sauf si exception ou refus, plus de place dans la collection de jeux par exemple)
+		 * 
+		 * @param joueurs : la map des joueurs de l'application avec pour clé leur pseudo
+		 * @param jeux : collection de jeux
+		 * @param plateformes : le set des plateformes de jeu disponibles
+		 * @param genres : le set des genres de jeu disponibles
+		 * @param joueurActif : le pseudo du joueur actif au moment de l'appel de la fonction
+		 * 
+		 * @return l'objet {@code Pair<Options, String>} à récupérer pour le bon fonctionnement dans la classe principale
+		 * 
+		 * @see projet.java.app.Menus.CollectionJeux
+		 */
 		public static Pair<Options, String> acheterJeu(Map<String, Joueur> joueurs, List<Jeu> jeux, SortedSet<String> plateformes, SortedSet<String> genres, String joueurActif) {
 			if(joueurs.isEmpty()) {
 				resultat.setBoth(Options.ACCUEIL, "");
@@ -1099,7 +1456,23 @@ public class Menus {
 		
 	}	
 	
+	/**
+	 * Tout ce qui concerne les amis d'un {@code Joueur}.</br>
+	 * (affichage de sa liste d'amis, affichage des détails publiques sur un joueur)
+	 * 
+	 * @author Nicolas Vrignaud
+	 *
+	 * @see projet.java.app.Menus
+	 */
 	public static class ListeAmis {
+		/**
+		 * Affichage de la liste d'amis d'un joueur (seulement le pseudo).
+		 * 
+		 * @param joueurs : la map des joueurs de l'application avec pour clé leur pseudo
+		 * @param joueurActif : le pseudo du joueur actif au moment de l'appel de la fonction
+		 * 
+		 * @return l'objet {@code Pair<Options, String>} à récupérer pour le bon fonctionnement dans la classe principale
+		 */
 		public static Pair<Options, String> afficherListeAmis(Map<String, Joueur> joueurs, String joueurActif) {
 			if(joueurs.isEmpty()) {
 				resultat.setBoth(Options.ACCUEIL, "");
@@ -1121,6 +1494,15 @@ public class Menus {
 			return resultat;
 		}
 		
+		/**
+		 * Affichage des détails publiques de l'un de nos amis.</br>
+		 * (recherche par pseudo)
+		 * 
+		 * @param joueurs : la map des joueurs de l'application avec pour clé leur pseudo
+		 * @param joueurActif : le pseudo du joueur actif au moment de l'appel de la fonction
+		 * 
+		 * @return l'objet {@code Pair<Options, String>} à récupérer pour le bon fonctionnement dans la classe principale
+		 */
 		public static Pair<Options, String> afficherDetailsPubliquesAmis(Map<String, Joueur> joueurs, String joueurActif) {
 			if(joueurs.isEmpty()) {
 				resultat.setBoth(Options.ACCUEIL, "");
@@ -1160,11 +1542,33 @@ public class Menus {
 		}
 	}
 	
+	/**
+	 * Tout ce qui concerne une partie multijoueurs (2 joueurs).</br>
+	 * (jouer à une partie multijoueurs)
+	 * 
+	 * @author Nicolas Vrignaud
+	 *
+	 * @see projet.java.app.Menus
+	 */
 	public static class PartieMulti {
 		
-		// On suppose qu'un bot n'a pas besoin d'être ami avec le joueur pour jouer
-		// (ce n'est pas un vrai joueur et cela rendrait la gestion des amis pénible pour les joueurs ayant un nombre d'amis limités)
-		public static Pair<Options, String> jouer(Map<String, Joueur> joueurs, SortedSet<String> plateformes, SortedSet<String> genres, String joueurActif) {
+		/**
+		 * Permet à un utilisateur de jouer en mode multijoueurs (2 joueurs) avec un ami ou un bot, au choix.</br>
+		 * Si aucun ami ou aucun bot ne peut jouer à ce jeu, on affiche la liste des 10 (maximum) joueurs pouvant jouer avec nous à ce jeu et que l'on peut inviter pour jouer.</br>
+		 * Si la partie peut être jouée (suppose qu'on ai encore des parties quotidiennes disponibles), les résultats sont affichés et enregistrés dans chacune des listes de parties des joueurs (sauf s'il s'agit d'un bot).</br>
+		 * </br>
+		 * Hypothèse : On suppose qu'un bot n'a pas besoin d'être ami avec le joueur pour jouer.</br>
+		 * (ce n'est pas un vrai joueur et cela rendrait la gestion des amis pénible pour les joueurs ayant un nombre d'amis limités)
+		 * 
+		 * @param joueurs : la map des joueurs de l'application avec pour clé leur pseudo
+		 * @param jeux : collection de jeux
+		 * @param plateformes : le set des plateformes de jeu disponibles
+		 * @param genres : le set des genres de jeu disponibles
+		 * @param joueurActif : le pseudo du joueur actif au moment de l'appel de la fonction
+		 * 
+		 * @return l'objet {@code Pair<Options, String>} à récupérer pour le bon fonctionnement dans la classe principale
+		 */
+		public static Pair<Options, String> jouer(Map<String, Joueur> joueurs, List<Jeu> jeux, SortedSet<String> plateformes, SortedSet<String> genres, String joueurActif) {
 			if(joueurs.isEmpty()) {
 				resultat.setBoth(Options.ACCUEIL, "");
 				return resultat;
@@ -1193,7 +1597,6 @@ public class Menus {
 					}
 					switch(choix) {
 					case "O":
-						// TODO: Il reste à compléter ce switch case pour cette fonction jouer
 						// Choix du mode de jeu (avec ami ou avec bot)
 						System.out.print(Menus.SEPARATEUR);
 						System.out.print("1. Jouer avec un ami\n2. Jouer avec un bot");
@@ -1207,10 +1610,10 @@ public class Menus {
 							// Afficher la liste des amis pouvant jouer s'il y en a
 							Set<String> amisDispos;
 							try {
-								amisDispos = Menus.listeAmisPouvantJouer(joueurs, (Jeu)joueurs.get(joueurActif).getJeux().toArray()[0], joueurActif);
+								amisDispos = Menus.listeAmisPouvantJouer(joueurs, Menus.trouverJeuSelonRang(jeux, indexJeu), joueurActif);
 								if(!amisDispos.isEmpty()) {
 									for(String pseudo : amisDispos) {
-										System.out.println(pseudo);
+										System.out.println("- " + pseudo);
 									}
 									// Choix de l'ami avec qui jouer
 									System.out.println(Menus.CHOIX_QUITTER);
@@ -1237,7 +1640,7 @@ public class Menus {
 									}
 									
 									// Partie avec cet ami et enregistrement des résultats
-									PartieMultijoueurs pm = new PartieMultijoueurs((Jeu)joueurs.get(joueurActif).getJeux().toArray()[indexJeu], joueurs.get(joueurActif), joueurs.get(choix));
+									PartieMultijoueurs pm = new PartieMultijoueurs(Menus.trouverJeuSelonRang(jeux, indexJeu), joueurs.get(joueurActif), joueurs.get(choix));
 									boolean partieJouee = pm.resultatsDePartie();
 									if(partieJouee) {
 										System.out.println("Partie en cours...");
@@ -1252,6 +1655,8 @@ public class Menus {
 										resultat.setFirst(Options.AFFICHAGE_PROFIL);
 										return resultat;
 									}
+								} else {
+									System.out.println("Aucun ami ne peut jouer avec vous à ce jeu...");
 								}
 							} catch (JoueurNonTrouveException e) {
 								System.out.println("Il n'y a pas de joueurs qui peuvent jouer à ce jeu dans votre liste d'amis...");
@@ -1262,12 +1667,20 @@ public class Menus {
 								System.out.println("Annulation...");
 								resultat.setBoth(Options.AFFICHAGE_PROFIL, joueurActif);
 								return resultat;
-							}
+							} catch (JeuNonTrouveException e) {}
 							break;
 						case "2":
-							String nomBot = Menus.gestionPartieAvecBots(joueurs, (Jeu)joueurs.get(joueurActif).getJeux().toArray()[indexJeu]);
 							// Partie avec le bot attribué et enregistrement des résultats
-							PartieMultijoueurs pm = new PartieMultijoueurs((Jeu)joueurs.get(joueurActif).getJeux().toArray()[indexJeu], joueurs.get(joueurActif), joueurs.get(nomBot));
+							String nomBot;
+							PartieMultijoueurs pm;
+							try {
+								nomBot = Menus.gestionPartieAvecBots(joueurs, Menus.trouverJeuSelonRang(jeux, indexJeu));
+								pm = new PartieMultijoueurs(Menus.trouverJeuSelonRang(jeux, indexJeu), joueurs.get(joueurActif), joueurs.get(nomBot));
+							} catch (JeuNonTrouveException e1) {
+								System.out.println("Erreur dans le rang du jeu.");
+								resultat.setBoth(Options.AFFICHAGE_PROFIL, joueurActif);
+								return resultat;
+							}
 							boolean partieJouee;
 							try {
 								partieJouee = pm.resultatsDePartie();
@@ -1302,18 +1715,25 @@ public class Menus {
 							return resultat;
 						}
 						
+						
 						// Pas d'ami pouvant jouer / Pas de module d'IA disponible : on propose un choix et on affiche les (10 MAX) joueurs les plus appropriés à inviter pour jouer
-						System.out.println("Invitez un de ces joueurs en tant qu'ami pour pouvoir jouer avec un vrai joueur. Sinon, vous pouvez toujours jouer avec un bot.");
-						
 						try {
-							Menus.listeJoueursAdaptesPourJouer(joueurs, (Jeu)joueurs.get(joueurActif).getJeux().toArray()[indexJeu], joueurActif);
+							Set<String> amisAptes = Menus.listeJoueursAdaptesPourJouer(joueurs, Menus.trouverJeuSelonRang(jeux, indexJeu), joueurActif);
+							System.out.println("Invitez un de ces joueurs en tant qu'ami pour pouvoir jouer avec un vrai joueur. Sinon, vous pouvez toujours jouer avec un bot.");
+							for(String a : amisAptes) {
+								System.out.println("- " + joueurs.get(a).getPseudo());
+							}
 						} catch (JoueurNonTrouveException e) {
-							// TODO Auto-generated catch block
+							resultat.setFirst(Options.AFFICHAGE_PROFIL);
+							resultat.setSecond(joueurActif);
+							return resultat;
+						} catch (JeuNonTrouveException e) {
+							System.out.println("Erreur dans le rang du jeu");
+							resultat.setFirst(Options.AFFICHAGE_PROFIL);
+							resultat.setSecond(joueurActif);
+							return resultat;
 						}
-						
-						resultat.setFirst(Options.AFFICHAGE_PROFIL);
-						resultat.setSecond(joueurActif);
-						return resultat;
+						break;
 					case "N":
 						System.out.println("Retour au menu de choix du jeu...");
 						resultat.setFirst(Options.JOUER);
@@ -1327,11 +1747,119 @@ public class Menus {
 					}
 				}
 			}
+			resultat.setFirst(Options.AFFICHAGE_PROFIL);
+			resultat.setSecond(joueurActif);
 			return resultat;
-			// Si on introduit un bot, modifier son statut boolean joue et jeuEnCours
-			
 		}
 	}
 	
-	public static class Statistiques {}
+	/**
+	 * Tout ce qui concerne les statistiques.</br>
+	 * (affichage des statistiques d'un {@code Joueur}, affichage du classment des joueurs et des jeux)
+	 * 
+	 * @author Nicolas Vrignaud
+	 *
+	 * @see projet.java.app.Menus
+	 */
+	public static class Statistiques {
+		/**
+		 * 
+		 * @param joueurs
+		 * @param joueurActif
+		 * @return
+		 */
+		public static Pair<Options, String> affichageStatistiquesJoueur(Map<String, Joueur> joueurs, String joueurActif) {
+			System.out.print(Menus.SEPARATEUR);
+			System.out.print("1. Partie du jour\n2. Partie d'un jour à choisir\n3. Proportion victoires/défaites");
+			System.out.print(Menus.SEPARATEUR);
+			System.out.print("Votre choix : ");
+			Scanner sc = new Scanner(System.in);
+			
+			String choix = sc.nextLine();
+			
+			switch(choix) {
+			case "1":
+				Map<String, PartieMultijoueurs> parties = new HashMap<>();
+				Date now;
+				try {
+					now = new Date();
+					int year = 1900 + now.getYear();
+					int month = 1 + now.getMonth();
+					int day = now.getDate();
+					parties = ((Humain)joueurs.get(joueurActif)).getPartiesJour(year + "/" + month + "/" + day);
+				} catch (PartieNonTrouveeException e) {
+					System.out.println("Aucune partie n'a été jouée ce jour-ci...");
+					resultat.setFirst(Options.AFFICHAGE_PROFIL);
+					resultat.setSecond(joueurActif);
+					return resultat;
+				}
+				
+				System.out.print(Menus.SEPARATEUR);
+				System.out.println("Parties jouées le " + Menus.DATE_FORMAT.format(now) + " :");
+				for(PartieMultijoueurs pm : parties.values()) {
+					System.out.println("- " + pm.toString());
+				}
+				System.out.print(Menus.SEPARATEUR);
+				break;
+			case "2":
+				System.out.print("Jour pour lequel afficher les parties (AAAA/MM/JJ): ");
+				sc = new Scanner(System.in);
+				String jour = sc.nextLine();
+				while(!jour.matches("^\\d{4}\\/((0[13578]|1[02])\\/([0-2][1-9]|3[01])|(0[469]|11)\\/([0-2][1-9]|30)|02\\/[0-2][1-9])$")) {
+					System.out.println("Ce format de date n'est pas valide. Veuillez entrer votre date de naissance correctement.");
+					System.out.print("Jour pour lequel afficher les parties (AAAA/MM/JJ): ");
+					sc = new Scanner(System.in);
+					jour = sc.nextLine();
+				}
+				
+				Date dateJour = new Date();
+				try {
+					dateJour = new SimpleDateFormat("yyyy/MM/dd").parse(jour);
+				} catch (ParseException e) {
+					e.printStackTrace();
+				}
+				
+				parties = new HashMap<>();
+				try {
+					parties = ((Humain)joueurs.get(joueurActif)).getPartiesJour(jour);
+				} catch (PartieNonTrouveeException e) {
+					System.out.println("Aucune partie n'a été jouée ce jour-ci...");
+					resultat.setFirst(Options.AFFICHAGE_PROFIL);
+					resultat.setSecond(joueurActif);
+					return resultat;
+				}
+				
+				System.out.print(Menus.SEPARATEUR);
+				System.out.println("Parties jouées le " + Menus.DATE_FORMAT.format(dateJour) + " :");
+				for(PartieMultijoueurs pm : parties.values()) {
+					System.out.println("- " + pm.toString());
+				}
+				System.out.print(Menus.SEPARATEUR);
+				break;
+			case "3":
+				Pair<Integer, Integer> vd = ((Humain)joueurs.get(joueurActif)).proportionVictoiresDefaites();
+				double pv = ((Humain)joueurs.get(joueurActif)).pourcentageDeVictoire();
+				System.out.print(Menus.SEPARATEUR);
+				System.out.println("Proportion victoires/défaites : " + vd.getFirst() + "/" + vd.getSecond());
+				System.out.println("Pourcentage de victoires : " + pv);
+				System.out.print(Menus.SEPARATEUR);
+				break;
+			default:
+				System.out.println("Veuillez choisir une des options ci-dessous.");
+				resultat.setFirst(Options.STATISTIQUES);
+				resultat.setSecond("");
+				break;
+			}
+			resultat.setFirst(Options.AFFICHAGE_PROFIL);
+			resultat.setSecond(joueurActif);
+			return resultat;
+		}
+		
+		/*public static Pair<Options, String> affichageStatistiquesGenerales(Map<String, Joueur> joueurs, String joueurActif) {
+			// Joueurs ayant le plus joué aujourd'hui
+			// Jeux les plus joués
+			
+			// Correspondrait à l'option CLASSEMENT et serait affichée dans le menu principal
+		}*/
+	}
 }

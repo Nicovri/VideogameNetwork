@@ -99,4 +99,14 @@ public class Jeu {
 		}
 		return jeuxTries;
 	}
+	
+	public static Collection<Jeu> rechercheMotCleTitre(Collection<Jeu> jeux, String recherche) {
+		List<Jeu> jeuxRecherche = new ArrayList<>();
+		for(Jeu j : jeux) {
+			if(j.getNom().contains(recherche)) {
+				jeuxRecherche.add(j);
+			}
+		}
+		return jeuxRecherche;
+	}
 }

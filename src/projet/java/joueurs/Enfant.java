@@ -103,4 +103,51 @@ public class Enfant extends Humain {
 		}
 		return res;
 	}
+	
+	@SuppressWarnings("deprecation")
+	public boolean aPlusDe18Ans() {
+		Date now = new Date();
+		Date adulte = this.getDateNaissance();
+		adulte.setYear(this.getDateNaissance().getYear() + 18);
+		// Peut-être vrai du moment qu'on est l'année de ses 18 ans
+		if(now.getYear() - this.getDateNaissance().getYear() >= 18) {
+			// Donc on vérifie si la date de son anniversaire de 18 ans est bien avant la date de maintenant
+			if(adulte.before(now)) {
+				return true;
+			}
+		}
+		return false;
+	}
+	
+	public Humain devenirAdulte() {
+		if(this.futurStatut == null) futurStatut = "S";
+		Humain adulte;
+		if(this.futurStatut.equals("G")) {
+			adulte = new Gold(this.getPseudo(), this.getEmail(), this.getDateNaissance(), this.getMachines().toArray()[0].toString());
+		} else {
+			adulte = new Standard(this.getPseudo(), this.getEmail(), this.getDateNaissance(), this.getMachines().toArray()[0].toString());
+		}
+		adulte.jeux = this.getJeux();
+		adulte.machinesDeJeu = this.getMachines();
+		
+		
+		for(Joueur j : this.amis) {
+			j.supprimerAmi(this);
+			
+			// L'enfant n'avait que des amis enfants en dehors de ses parents, donc on ne garde en ami que ses parents
+			if(j.getPseudo().equals(this.parents[0]) || j.getPseudo().equals(this.parents[1])) {				
+				try {
+					adulte.ajouterAmi(j);
+					j.ajouterAmi(adulte);
+				} catch (PlusDePlaceListeAmisException e) {
+					adulte.supprimerAmi(j);
+					j.supprimerAmi(adulte);
+				}
+			}		
+		}
+		
+		adulte.parties = this.parties;
+		
+		return adulte;
+	}
 }

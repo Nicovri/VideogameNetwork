@@ -8,7 +8,6 @@ import java.net.ConnectException;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.net.UnknownHostException;
-import java.text.ParseException;
 import java.time.Year;
 import java.util.ArrayList;
 import java.util.Date;
@@ -20,7 +19,11 @@ import java.util.TreeSet;
 
 import projet.java.err.collecVide.ListeVideException;
 import projet.java.err.collecVide.SetVideException;
+import projet.java.err.plusDePlace.PlusDePlaceCollectionJeuxException;
+import projet.java.err.plusDePlace.PlusDePlaceListeAmisException;
+import projet.java.err.plusDePlace.PlusDePlaceNombreDePartiesException;
 import projet.java.jeux.Jeu;
+import projet.java.jeux.PartieMultijoueurs;
 import projet.java.joueurs.Enfant;
 import projet.java.joueurs.Gold;
 import projet.java.joueurs.Humain;
@@ -30,33 +33,35 @@ import projet.java.utils.Options;
 import projet.java.utils.Pair;
 
 /**
- * Classe principale de l'application.
- * @author Nicolas Vrignaud
- *
+ * Classe principale de l'application.</br>
  * Arguments par défaut pour les tests : https://raw.githubusercontent.com/stef-aramp/video_games_sales/master/vgsales.csv 1
+ * 
+ * @author Nicolas Vrignaud
+ * 
  */
 public class App {
 	private List<Jeu> dataJeux = new ArrayList<>();
 	private Map<String, Joueur> joueurs = new HashMap<>();
-	// Le premier élément est la prochaine action à éffectuer dans la boucle infinie
+	
+	// Le premier élément est la prochaine action à effectuer dans la boucle infinie
 	// Le second élément est le pseudo du joueur actif de l'application
 	private Pair<Options, String> parametres = new Pair<>(Options.ACCUEIL, "");
-	// Collection de bots
 	
 	// Pour faciliter le classement des jeux par plateformes et catégories
 	private SortedSet<String> plateformes = new TreeSet<>();
 	private SortedSet<String> categories = new TreeSet<>();
 	
-	private App() {
-		
-	}
+	private App() {}
 	
 	/**
 	 * Constructeur de la classe App.
 	 * 
-	 * Parse le fichier CSV des jeux disponibles lors de la création de l'application.
-	 * Stocke les jeux dans la variable dataJeux.
-	 * Stocke les plateformes et les categories dans les variables du même nom.
+	 * <ul>
+	 * <li>Parse le fichier CSV des jeux disponibles lors de la création de l'application.</li>
+	 * <li>Stocke les données sous forme de {@code Jeu} dans la variable dataJeux.</li>
+	 * <li>Stocke les plateformes et les categories dans les variables du même nom.</li>
+	 * <li>(Eventuellement, initialise des joueurs pour éviter d'avoir à tout refaire à chaque démarrage)</li>
+	 * </ul>
 	 * 
 	 * @param dataURL : URL du fichier CSV à parser
 	 * @param indiceDebut : indice de la ligne du premier jeu à stocker dans la collection de jeux
@@ -138,23 +143,45 @@ public class App {
 		this.joueurs.put("enfant10", new Enfant("enfant10", "enfant10@test.fr", new Date(), "Wii", "G"));
 		this.joueurs.put("enfant11", new Enfant("enfant11", "enfant11@test.fr", new Date(), "Wii", "G"));
 		this.joueurs.put("enfant12", new Enfant("enfant12", "enfant12@test.fr", new Date(), "Wii", "G"));
+		// Test pour la méthode jouer
+		try {
+			this.joueurs.get("nicolas").ajouterAmi(this.joueurs.get("paul56"));
+			this.joueurs.get("nicolas").ajouterJeu(this.dataJeux.get(0));
+			this.joueurs.get("paul56").ajouterAmi(this.joueurs.get("nicolas"));
+			this.joueurs.get("paul56").ajouterJeu(this.dataJeux.get(8));
+		} catch (PlusDePlaceListeAmisException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (PlusDePlaceCollectionJeuxException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 	}
 
 	/**
 	 * Structure d'exécution de l'application.
 	 * 
-	 * @param args :
-	 * 	- args[0] est l'URL du fichier CSV de jeux à parser
-	 * 	- args[1] est le mode d'affichage de l'application
-	 * 		- 1 pour CLI
-	 * 		- 2 pour JavaFX
-	 * 		- Un autre nombre ne lancera pas l'application
+	 * @param args :</br>
+	 * <ul>
+	 * <li>args[0] est l'URL du fichier CSV de jeux à parser</li>
+	 * <li>args[1] est le mode d'affichage de l'application</li>
+	 * <ul>
+	 * <li>1 pour CLI</li>
+	 * <li>2 pour JavaFX</li>
+	 * <li>Un autre nombre ne lancera pas l'application</li>
+	 * </ul>
+	 * </ul>
 	 * 
+	 * En mode CLI, chaque fonction utilisée retourne une valeur pour la variable parametres.
+	 * Selon l'option retournée, la fonction suivante sera appelée, tant que l'option quitter n'est pas retournée.
+	 * 
+	 * @see projet.java.app.Menus
+	 * @see projet.java.utils.Options
 	 */
 	public static void main(String[] args) {
 		App app = new App();
 		try {			
-			app = new App(args[0], 55, 100);
+			app = new App(args[0], 30, 100);
 		} catch (IndexOutOfBoundsException e) {
 			System.out.println("Il n'y a pas autant de jeux dans l'URL donné, réessayez.");
 			e.printStackTrace();
@@ -182,7 +209,6 @@ public class App {
 		switch(choix) {
 		case 1:
 			// On exécute la fonction correspondant au code de retour, selon les choix de l'utilisateur
-			// (Voir projet.java.app.Menus)
 			while(!app.parametres.getFirst().equals(Options.QUITTER)) {
 				switch(app.parametres.getFirst()) {
 				case ACCUEIL:
@@ -192,7 +218,7 @@ public class App {
 					app.parametres = Menus.Profil.afficherProfil(app.joueurs, app.parametres.getSecond());
 					break;
 				case JOUER:
-					app.parametres = Menus.PartieMulti.jouer(app.joueurs, app.plateformes, app.categories, app.parametres.getSecond());
+					app.parametres = Menus.PartieMulti.jouer(app.joueurs, app.dataJeux, app.plateformes, app.categories, app.parametres.getSecond());
 					break;
 				case COLLECTION:
 					app.parametres = Menus.CollectionJeux.afficherListeJeux(app.joueurs.get(app.parametres.getSecond()).getJeux(),
@@ -212,6 +238,9 @@ public class App {
 					break;
 				case DETAILS_PUBLIQUES_AMIS:
 					app.parametres = Menus.ListeAmis.afficherDetailsPubliquesAmis(app.joueurs, app.parametres.getSecond());
+					break;
+				case STATISTIQUES:
+					app.parametres = Menus.Statistiques.affichageStatistiquesJoueur(app.joueurs, app.parametres.getSecond());
 					break;
 				case INSCRIRE_ENFANT:
 					app.parametres = Menus.Interactions.inscrireSonEnfant(app.joueurs, app.plateformes, app.parametres.getSecond());
@@ -238,7 +267,7 @@ public class App {
 					break;
 				}
 			}
-			// Faire le nécessaire avant de quitter l'aplication (gestion d'exceptions, base de données, etc.)
+			// Faire le nécessaire avant de quitter l'aplication (base de données, libération de la mémoire, etc.)
 			app.parametres.setFirst(Options.ACCUEIL);
 			app.parametres.setSecond("");
 			break;

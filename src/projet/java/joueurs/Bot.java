@@ -29,6 +29,7 @@ public class Bot extends Joueur {
 	public boolean getJoue() { return this.joue; }
 	
 	public void setJeuEnCours(String j) { this.jeuEnCours = j; }
+	public void resetJeuEnCours() { this.jeuEnCours = ""; }
 	public String getJeuEnCours() { return this.jeuEnCours; }
 	
 	@Override

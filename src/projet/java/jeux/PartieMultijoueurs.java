@@ -11,8 +11,8 @@ import projet.java.joueurs.Humain;
 public class PartieMultijoueurs {
 	private Jeu jeu;
 	private Joueur[] joueurs = new Joueur[2];
-	private String pseudoGagnant;
-	private String pseudoPerdant;
+	private String pseudoGagnant = "";
+	private String pseudoPerdant = "";
 	
 	public PartieMultijoueurs(Jeu jeu, Joueur moi, Joueur ami) {
 		this.jeu = jeu;
@@ -23,7 +23,15 @@ public class PartieMultijoueurs {
 	public String getPseudoGagnant() { return this.pseudoGagnant; }
 	public String getPseudoPerdant() { return this.pseudoPerdant; }
 	
-	// ExceptionJoueur2DoitEtreUnHumain
+	@Override
+	public String toString() {
+		StringBuilder b = new StringBuilder();
+		b.append("Partie Multijoueurs sur le jeu \"" + jeu.getNom() + "\":\n");
+		b.append("    - Joueur gagnant : " + this.pseudoGagnant);
+		b.append("\n    - Joueur perdant : " + this.pseudoPerdant);
+		return b.toString();
+	}
+	
 	public boolean partiePossibleHumain() throws Joueur2NonHumainException {
 		if(!(joueurs[1] instanceof Humain)) {
 			throw new Joueur2NonHumainException(joueurs[1]);
@@ -33,7 +41,7 @@ public class PartieMultijoueurs {
 		}
 		boolean partiePossible = false;
 		// Les 2 joueurs sont-ils amis réciproquement ?
-		if(!joueurs[0].getAmis().contains(joueurs[1]) || !joueurs[1].getAmis().contains(joueurs[0])) {
+		if(!joueurs[0].getAmis().contains(joueurs[1].getPseudo()) || !joueurs[1].getAmis().contains(joueurs[0].getPseudo())) {
 			return false;
 		}
 		// Joueur1 a-t-il le jeu en question et son jeu est-il compatible avec les consoles qu'il possède ?
@@ -70,13 +78,8 @@ public class PartieMultijoueurs {
 			if(jeu.getNom().equals(j.getNom())) {
 				if(((Humain) this.joueurs[0]).getMachines().contains(j.getPlateforme())) {					
 					partiePossible = true;
+					break;
 				}
-			}
-		}
-		// Le bot a-t-il le module d'IA
-		for(Jeu j : this.joueurs[1].getJeux()) {
-			if(jeu.getNom().equals(j.getNom())) {
-				partiePossible = true;
 			}
 		}
 		if(Integer.parseInt(jeu.getAnnee()) < Integer.parseInt(Jeu.DATE_IA)) {
@@ -86,6 +89,7 @@ public class PartieMultijoueurs {
 	}
 	
 	// Si choix de jeu possible, paramètres à ajouter à cette fonction
+	// On suppose qu'il n'y a jamais de match nul
 	private void jouer() {
 		if(this.pseudoGagnant.isEmpty() && this.pseudoPerdant.isEmpty()) {			
 			double res1 = Math.random() * 100;
@@ -110,7 +114,15 @@ public class PartieMultijoueurs {
 			return false;
 		}
 		if(partiePossible) {
+			if(this.joueurs[1] instanceof Bot) {
+				((Bot)this.joueurs[1]).toggleJoue();
+				((Bot)this.joueurs[1]).setJeuEnCours(this.jeu.getNom());
+			}
 			this.jouer();
+			if(this.joueurs[1] instanceof Bot) {				
+				((Bot)this.joueurs[1]).toggleJoue();
+				((Bot)this.joueurs[1]).resetJeuEnCours();
+			}
 			boolean partieAjoutee = ((Humain)this.joueurs[0]).ajouterPartie(this).getSecond().getSecond();
 			if(partieAjoutee) {
 				if(this.joueurs[1] instanceof Humain) {					

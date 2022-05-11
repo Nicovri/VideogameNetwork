@@ -3,12 +3,13 @@ package projet.java.joueurs;
 import java.util.Date;
 
 import projet.java.err.plusDePlace.PlusDePlaceNombreDePartiesException;
+import projet.java.jeux.Jeu;
 import projet.java.jeux.PartieMultijoueurs;
 import projet.java.utils.Pair;
 
 public class Gold extends Humain {
 	private final int PARTIES_MAX = 10;
-	//private int coins;
+	//private int argent;
 	
 	public Gold(String pseudo, String email, Date dateNaissance, String console) {
 		super(pseudo, email, dateNaissance, console);
@@ -16,16 +17,18 @@ public class Gold extends Humain {
 	
 	@Override
 	public String profilPublic() {
-		return super.profilPublic();
 		// Sans restrictions dans les joueurs standards et gold
-	}
-	
-	public void acheterJeu() {
-		
-	}
-	
-	public void offrirJeu() {
-		// enfant : recevoir des jeux d'un autre seulement si c'est son parent/tuteur
+		StringBuilder b = new StringBuilder();
+		b.append(super.profilPublic());
+		b.append("\n-  " + Joueur.DATE_NAISSANCE_FORMAT.format(this.getDateNaissance()) + "\n");
+		for(String machine : this.getMachines()) {
+			b.append(machine + " / ");
+		}
+		b.append("\nJeux:\n");
+		for(Jeu jeu : this.getJeux()) {
+			b.append("- " + jeu.getNom() + " : " + jeu.getPlateforme() + "\n");
+		}
+		return b.toString();
 	}
 	
 	@Override
