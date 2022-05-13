@@ -10,11 +10,23 @@ import projet.java.err.plusDePlace.PlusDePlaceCollectionJeuxException;
 import projet.java.err.plusDePlace.PlusDePlaceListeAmisException;
 import projet.java.jeux.Jeu;
 
+/**
+ * Classe de base d'un joueur.</br>
+ * Se décline en plusieurs catégories plus précises qui permettent de différencier le statut des joueurs (c'est pour cette raison que la classe est {@code abstract}, on ne veut pas pouvoir l'instancier)
+ * 
+ * @author Nicolas Vrignaud
+ * 
+ * @see projet.java.joueurs.Humain
+ * @see projet.java.joueurs.Bot
+ */
 public abstract class Joueur {
 	private String pseudo;
 	private String email;
 	private Date dateDeNaissance;
 	
+	/**
+	 * Format de la date de naissance du joueur en français. Nom du jour et du mois écrit en entier.
+	 */
 	protected final static DateFormat DATE_NAISSANCE_FORMAT = DateFormat.getDateInstance(DateFormat.LONG, Locale.FRENCH);
 	
 	protected Set<Joueur> amis = new HashSet<>();
@@ -31,6 +43,10 @@ public abstract class Joueur {
 	protected Date getDateNaissance() { return (Date) this.dateDeNaissance.clone(); }
 	
 	public Set<Jeu> getJeux() { return this.jeux; }
+	
+	/**
+	 * @return un set composé des pseudos de ses amis (peut être {@code null}).
+	 */
 	public Set<String> getAmis() {
 		Set<String> pseudos = new HashSet<>();
 		for(Joueur j : this.amis) {
@@ -41,6 +57,16 @@ public abstract class Joueur {
 	
 	public String profilPublic() { return this.pseudo; }
 	
+	/**
+	 * Essaie d'ajouter un ami selon les conditions demandées.</br>
+	 * (des conditions plus précises, notamment de place sont traités dans les classes filles)
+	 * 
+	 * @param j : {@code Joueur} à ajouter en ami
+	 * 
+	 * @return l'ajout a-t-il été effectué correctement ?
+	 * 
+	 * @throws PlusDePlaceListeAmisException
+	 */
 	public boolean ajouterAmi(Joueur j) throws PlusDePlaceListeAmisException {
 		if(j != null) {			
 			int tailleAvant = this.amis.size();
@@ -66,6 +92,14 @@ public abstract class Joueur {
 		return false;
 	}
 	
+	/**
+	 * Essaie de supprimer un ami selon les conditions demandées.</br>
+	 * (des conditions plus précises, notamment de place sont traités dans les classes filles)
+	 * 
+	 * @param j : {@code Joueur} à supprimer de sa liste d'amis
+	 * 
+	 * @return la suppression a-t-elle été effectuée correctement ?
+	 */
 	public boolean supprimerAmi(Joueur j) {
 		if(j != null) {			
 			int tailleAvant = this.amis.size();
@@ -87,6 +121,16 @@ public abstract class Joueur {
 		return false;
 	}
 	
+	/**
+	 * Essaie d'ajouter un {@code Jeu} selon les conditions demandées.</br>
+	 * (des conditions plus précises, notamment de place sont traités dans les classes filles)
+	 * 
+	 * @param j : le {@code Jeu} à ajouter à sa collection
+	 * 
+	 * @return l'ajout a-t-il été effectué correctement ?
+	 * 
+	 * @throws PlusDePlaceCollectionJeuxException
+	 */
 	public boolean ajouterJeu(Jeu j) throws PlusDePlaceCollectionJeuxException {
 		if(j != null) {
 			int tailleAvant = this.jeux.size();
@@ -101,6 +145,14 @@ public abstract class Joueur {
 		return false;
 	}
 	
+	/**
+	 * Essaie de supprimer un {@code Jeu} selon les conditions demandées.</br>
+	 * (des conditions plus précises, notamment de place sont traités dans les classes filles)
+	 * 
+	 * @param j : le {@code Jeu} à supprimer de sa collection de jeux
+	 * 
+	 * @return la suppression a-t-elle été effectuée correctement ?
+	 */
 	public boolean supprimerJeu(Jeu j) {
 		if(j != null) {
 			int tailleAvant = this.jeux.size();

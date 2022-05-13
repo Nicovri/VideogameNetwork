@@ -6,6 +6,15 @@ import java.util.Collection;
 import java.util.List;
 import java.util.SortedSet;
 
+import projet.java.err.nonTrouve.JeuNonTrouveException;
+
+/**
+ * Classe modèle d'un {@code Jeu}.</br>
+ * Ses données membres permettent d'identifier quelles informations peuvent être parsées depuis le fichier d'entrée.
+ * 
+ * @author Nicolas Vrignaud
+ *
+ */
 public class Jeu {
 	private int rang;
 	private String nom;
@@ -42,17 +51,10 @@ public class Jeu {
 	public String getGenre() { return this.genre; }
 	public String getAnnee() { return this.annee.toString(); }
 	
-	public void setRang(int rang) { this.rang = rang; }
-	public void setNom(String nom) { this.nom = nom; }
-	public void setConsole(String plateforme) { this.plateforme = plateforme; }
-	public void setAnnee(Year annee) { this.annee = annee; }
-	public void setEditeur(String editeur) { this.editeur = editeur; }
-	public void setVentesAN(float ventesAN) { this.ventesAN = ventesAN; }
-	public void setVentesEU(float ventesEU) { this.ventesEU = ventesEU; }
-	public void setVentesJP(float ventesJP) { this.ventesJP = ventesJP; }
-	public void setAutresVentes(float autresVentes) { this.autresVentes = autresVentes; }
-	public void setVentesTotales(float ventesTotales) { this.ventesTotales = ventesTotales; }
-	
+	/**
+	 * Affichage des informations précises sur un {@code Jeu}.</br>
+	 * (Utile lorsque les détails d'un jeu doivent être parcourus, lors de l'achat par exemple)
+	 */
 	@Override
 	public String toString() {
 		StringBuilder b = new StringBuilder();
@@ -69,13 +71,26 @@ public class Jeu {
 		return b.toString();
 	}
 	
+	/**
+	 * Affichage rapide d'un jeu, càd le rang, suivi de son som.
+	 * 
+	 * @return chaine de caractères des informations simplifiées d'un jeu
+	 */
 	public String affichageRapide() {
 		StringBuilder b = new StringBuilder();
 		b.append(this.rang + ". " + this.nom);
 		return b.toString();
 	}
 	
-	// Il est sûrement possible de factoriser ces deux méthodes
+	/**
+	 * Retourne la collection de jeux entrée en paramètres triée par machines de jeu (dans l'ordre alphabétique).
+	 * Les jeux gardent leur rang lors de l'affichage, ce qui permet de choisir facilement le jeu par la suite.
+	 * 
+	 * @param jeux : une collection de jeux
+	 * @param plateformes : le set des plateformes de jeu disponibles
+	 * 
+	 * @return la collection de jeux triée par machines
+	 */
 	public static Collection<Jeu> triParMachine(Collection<Jeu> jeux, SortedSet<String> plateformes) {
 		List<Jeu> jeuxTries = new ArrayList<>();
 		for(String machine : plateformes) {
@@ -88,6 +103,15 @@ public class Jeu {
 		return jeuxTries;
 	}
 	
+	/**
+	 * Retourne la collection de jeux entrée en paramètres triée par genres (dans l'ordre alphabétique).</br>
+	 * Les jeux gardent leur rang lors de l'affichage, ce qui permet de choisir facilement le jeu par la suite.
+	 * 
+	 * @param jeux : une collection de jeux
+	 * @param genres : le set des plateformes de jeu disponibles
+	 * 
+	 * @return la collection de jeux triée par genres
+	 */
 	public static Collection<Jeu> triParGenre(Collection<Jeu> jeux, SortedSet<String> genres) {
 		List<Jeu> jeuxTries = new ArrayList<>();
 		for(String genre : genres) {
@@ -100,6 +124,15 @@ public class Jeu {
 		return jeuxTries;
 	}
 	
+	/**
+	 * Recherche un jeu dans une collection en fonction de son titre.</br>
+	 * Si son titre contient le mot clé demandé, il est ajouté à la liste des jeux correspondants à la recherche.
+	 * 
+	 * @param jeux : une collection de jeux
+	 * @param recherche : le mot clé entré lors d'une recherche de jeux
+	 * 
+	 * @return liste du ou des jeux dont le titre contient le mot clé passé en paramètres.
+	 */
 	public static Collection<Jeu> rechercheMotCleTitre(Collection<Jeu> jeux, String recherche) {
 		List<Jeu> jeuxRecherche = new ArrayList<>();
 		for(Jeu j : jeux) {
@@ -108,5 +141,23 @@ public class Jeu {
 			}
 		}
 		return jeuxRecherche;
+	}
+	
+	/**
+	 * Retourne le jeu ayant le rang demandé parmi une collection d'objets {@code Jeu}.
+	 * 
+	 * @param jeux : collection de jeux
+	 * @param rang : le rang du jeu à retourner
+	 * 
+	 * @return le jeu ayant le rang souhaité en donnée membre, s'il existe, sinon
+	 * @throws JeuNonTrouveException
+	 */
+	public static Jeu trouverJeuSelonRang(Collection<Jeu> jeux, int rang) throws JeuNonTrouveException {
+		for(Jeu jeu : jeux) {
+			if(jeu.getRang() == rang) {
+				return jeu;
+			}
+		}
+		throw new JeuNonTrouveException();
 	}
 }

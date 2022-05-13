@@ -9,6 +9,14 @@ import projet.java.jeux.Jeu;
 import projet.java.jeux.PartieMultijoueurs;
 import projet.java.utils.Pair;
 
+/**
+ * Classe représentant un joueur adulte sous statut {@code Gold}.</br>
+ * ({@code extends Gold}, car il a les mêmes fonctionalités, juste un nombre d'amis et de jeux limités)
+ * 
+ * @author Nicolas Vrignaud
+ *
+ * @see projet.java.joueurs.Gold
+ */
 public class Standard extends Gold {
 	private final int AMIS_MAX = 100;
 	private final int JEUX_MAX = 50;

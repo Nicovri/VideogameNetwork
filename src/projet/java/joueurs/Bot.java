@@ -5,6 +5,13 @@ import java.util.Date;
 import projet.java.err.plusDePlace.PlusDePlaceCollectionJeuxException;
 import projet.java.jeux.Jeu;
 
+/**
+ * Classe représentant un {@code Bot}.</br>
+ * Un bot n'est créé que lorsque nécessaire.
+ * 
+ * @author Nicolas Vrignaud
+ *
+ */
 public class Bot extends Joueur {
 	private static int id = 1;
 	public final static String PSEUDO_BOT = "bot";
@@ -38,7 +45,7 @@ public class Bot extends Joueur {
 		b.append(super.profilPublic());
 		b.append("\nListe de jeux :\n");
 		for(Jeu j : this.jeux) {
-			b.append("\t- " + j.affichageRapide());
+			b.append("\t- " + j.affichageRapide() + "\n");
 		}
 		return b.toString();
 	}

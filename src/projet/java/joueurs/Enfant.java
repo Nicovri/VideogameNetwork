@@ -9,6 +9,13 @@ import projet.java.jeux.Jeu;
 import projet.java.jeux.PartieMultijoueurs;
 import projet.java.utils.Pair;
 
+/**
+ * Classe représentant un joueur enfant.
+ * 
+ * @author Nicolas Vrignaud
+ * 
+ * @see projet.java.joueurs.Humain
+ */
 public class Enfant extends Humain {
 	private String[] parents = new String[]{"", ""};
 	private String futurStatut;
@@ -26,7 +33,7 @@ public class Enfant extends Humain {
 	}
 	
 	public String[] getPseudosParents() { return parents; }
-		
+	
 	public void setPseudoParent1(String pseudo) { this.parents[0] = pseudo; }
 	public void setPseudoParent2(String pseudo) { this.parents[1] = pseudo; }
 	
@@ -40,6 +47,14 @@ public class Enfant extends Humain {
 		return b.toString();
 	}
 	
+	/**
+	 * Inscription de l'enfant par son parent : ajoute le pseudo du parent dans le tableau des parents et ajout respectif dans la liste d'amis
+	 * 
+	 * @param parent1Ou2 : est-ce le parent 1 ou 2 (si autre chose, la méthode ajouterAmi rendra une erreur)
+	 * @param parent : joueur parent/tuteur
+	 * 
+	 * @throws PlusDePlaceListeAmisException
+	 */
 	public void inscrire(int parent1Ou2, Gold parent) throws PlusDePlaceListeAmisException {
 		if(parent1Ou2 == 1) {
 			this.setPseudoParent1(parent.getPseudo());
@@ -104,6 +119,11 @@ public class Enfant extends Humain {
 		return res;
 	}
 	
+	/**
+	 * Vérification de l'âge de l'enfant.
+	 * 
+	 * @return l'enfant a-t-il plus de 18 ans au moment de l'appel de cette fonction ?
+	 */
 	@SuppressWarnings("deprecation")
 	public boolean aPlusDe18Ans() {
 		Date now = new Date();
@@ -119,6 +139,12 @@ public class Enfant extends Humain {
 		return false;
 	}
 	
+	/**
+	 * Conversion d'un joueur {@code Enfant} en un joueur {@code Standard} ou {@code Gold}, selon la valeur de la donnée memebre {@code futurStatut}.</br>
+	 * Les données correspondantes sont conservées dans la limite du possible (ex : les amis encore enfants vont disparaitre car un adulte ne peut pas être ami avec des enfants si il n'est pas un de leurs parent)
+	 * 
+	 * @return le joueur adulte correspondant
+	 */
 	public Humain devenirAdulte() {
 		if(this.futurStatut == null) futurStatut = "S";
 		Humain adulte;

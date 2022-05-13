@@ -3,10 +3,8 @@ package projet.java.app;
 import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
-import java.util.Calendar;
 import java.util.Collection;
 import java.util.Date;
-import java.util.GregorianCalendar;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -45,32 +43,36 @@ import projet.java.utils.Pair;
  */
 public class Menus {
 	private static Pair<Options, String> resultat = new Pair<>();
+	private static Scanner sc = new Scanner(System.in);
 	
-	private final static String SEPARATEUR = "\n".concat("=====".repeat(15)).concat("\n");
-	
+	/**
+	 * Format de la date de naissance du joueur en français. Nom du jour et du mois écrit en entier.
+	 */
 	private final static DateFormat DATE_FORMAT = DateFormat.getDateInstance(DateFormat.LONG, Locale.FRENCH);
 	
+	/**
+	 * Séparateur utilisé lors de l'affichage pour plus de facilité de lecture
+	 */
+	private final static String SEPARATEUR = "\n".concat("=====".repeat(15)).concat("\n");	
+	
+	/**
+	 * (Quitter) Avant une entrée de texte par l'utilisateur, permet un affichage des choix alternatifs proposés à l'utilisateur
+	 * 
+	 * @see projet.java.app.Menus#CHOIX_RECOMMENCER </br>(Recommencer)
+	 * @see projet.java.app.Menus#CHOIX_OUI </br>(Oui)
+	 * @see projet.java.app.Menus#CHOIX_NON </br>(Non)
+	 */
 	private final static String CHOIX_QUITTER = "(Pour quitter, entrez Q)";
 	private final static String CHOIX_RECOMMENCER = "(Pour recommencer, entrez R)";
 	private final static String CHOIX_OUI = "(Pour valider, entrez O)";
 	private final static String CHOIX_NON = "(Pour refuser, entrez N)";
 	
 	/**
-	 * Retourne le jeu ayant le rang demandé parmi une collection d'objets {@code Jeu}.
-	 * 
-	 * @param jeux : collection de jeux
-	 * @param rang : le rang du jeu à retourner
-	 * 
-	 * @return le jeu ayant le rang souhaité en donnée membre, s'il existe, sinon
-	 * @throws JeuNonTrouveException
+	 * Ferme le {@code Scanner} ouvert lors de sa déclaration.</br>
+	 * A utiliser UNIQUEMENT à la fin du programme, sinon System.in n'est plus accessible et propage {@code NoSuchElementException} lors de l'utilisation suivante de sc.
 	 */
-	private static Jeu trouverJeuSelonRang(Collection<Jeu> jeux, int rang) throws JeuNonTrouveException {
-		for(Jeu jeu : jeux) {
-			if(jeu.getRang() == rang) {
-				return jeu;
-			}
-		}
-		throw new JeuNonTrouveException();
+	public static void closeSc() {
+		sc.close();
 	}
 	
 	/**
@@ -80,9 +82,11 @@ public class Menus {
 	 * @param rang
 	 * 
 	 * @throws JeuNonTrouveException
+	 * 
+	 * @see {@link projet.java.jeux.Jeu#trouverJeuSelonRang(Collection, int)}
 	 */
 	private static void afficherDetailsJeuSelonRang(Collection<Jeu> jeux, int rang) throws JeuNonTrouveException {
-		Jeu jeu = trouverJeuSelonRang(jeux, rang);
+		Jeu jeu = Jeu.trouverJeuSelonRang(jeux, rang);
 		System.out.println(Menus.SEPARATEUR);
 		System.out.println(jeu.toString());
 		System.out.println(Menus.SEPARATEUR);
@@ -159,9 +163,9 @@ public class Menus {
 	}
 	
 	/**
-	 * Gestionnaire des bots présents dans l'application.
-	 * 
-	 * On aura après l'appel de cette fonction 1 seul bot par jeu.
+	 * Gestionnaire des bots présents dans l'application.</br>
+	 * </br>
+	 * On aura après l'appel de cette fonction 1 seul bot par jeu.</br>
 	 * TODO : indépendamment de la console.
 	 * 
 	 * @param joueurs : la map des joueurs de l'application avec pour clé leur pseudo
@@ -176,7 +180,7 @@ public class Menus {
 				Set<Jeu> jeux = joueurs.get(pseudoBot).getJeux();
 				bots.remove(pseudoBot);
 				for(String pseudoAutreBot : bots) {
-					for(Jeu jeu : jeux) {						
+					for(Jeu jeu : jeux) {
 						if(joueurs.get(pseudoAutreBot).getJeux().contains(jeu)) {
 							bots.remove(pseudoAutreBot);
 							botsEnTrop.add(pseudoAutreBot);
@@ -237,7 +241,7 @@ public class Menus {
 	 * Retourne la liste des joueurs avec lesquels on peut jouer au jeu passé en paramètres.</br>
 	 * Les amis ne sont pas exclus lors de la recherche.
 	 * </br>
-	 * Hypothèse : 10 joueurs au maximum retournés, et qui sont :
+	 * Hypothèse : les joueurs sont :
 	 * <ul>
 	 * <li>Les joueurs qui possèdent le plus de jeux en commun et ayant la possibilité de jouer,
 	 * càd ayant la console appropriée à leur jeu et respectant les conditions d'ajout en tant qu'ami</li>
@@ -247,18 +251,19 @@ public class Menus {
 	 * @param joueurs : la map des joueurs de l'application avec pour clé leur pseudo
 	 * @param jeu : le jeu demandé lors d'une nouvelle partie
 	 * @param joueurActif : le pseudo du joueur actif au moment de l'appel de la fonction
+	 * @param max : le nombre maximum de joueurs aptes à jouer à garder 
 	 * 
 	 * @return la liste des joueurs qui peuvent jouer avec nous au jeu demandé, s'il y en a, sinon
 	 * @throws JoueurNonTrouveException : aucun ami trouvé
 	 */
-	private static Set<String> listeJoueursAdaptesPourJouer(Map<String, Joueur> joueurs, Jeu jeu, String joueurActif) throws JoueurNonTrouveException {
+	private static Set<String> listeJoueursAdaptesPourJouer(Map<String, Joueur> joueurs, Jeu jeu, String joueurActif, int max) throws JoueurNonTrouveException {
 		Set<String> joueursAdaptes = new HashSet<>();
 		int c = joueurs.size();
 		if(joueurs.isEmpty()) {
 			System.out.println("Vous n'avez pas encore d'amis dans votre liste.");
 			throw new JoueurNonTrouveException();
 		}
-		while(joueursAdaptes.size() < 10 && c > 0) {
+		while(joueursAdaptes.size() < max && c > 0) {
 			for(Joueur j : joueurs.values()) {
 				if(j instanceof Humain && !j.getPseudo().equals(joueurs.get(joueurActif).getPseudo())) {
 					// Pour chacun des jeux du joueur j
@@ -295,6 +300,109 @@ public class Menus {
 		return joueursAdaptes;
 	}
 	
+	/**
+	 * Recherche les joueurs ayant le plus joué aujourd'hui et de leur nombre de parties.</br>
+	 * </br>
+	 * Hypothèse : les bots ne comptent pas, on ne garde que les joueurs de la classe {@code Humain}.
+	 * 
+	 * @param joueurs : la map des joueurs de l'application avec pour clé leur pseudo
+	 * @param max : le nombre maximum de joueurs à garder pour le classement
+	 * 
+	 * @return une map (triée car on les ajoute dans l'ordre) des joueurs ayant le plus joué aujourd'hui et de leur nombre de parties
+	 * @throws JoueurNonTrouveException 
+	 */
+	@SuppressWarnings("deprecation")
+	private static Map<String, Integer> classementJoueursDuJour(Map<String, Joueur> joueurs, int max) throws JoueurNonTrouveException {
+		Map<String, Integer> classement = new HashMap<>();
+		
+		Date now = new Date();
+		int year = 1900 + now.getYear();
+		int month = 1 + now.getMonth();
+		int day = now.getDate();
+		String ceJour = year + "/" + month + "/" + day;
+		
+		Map<String, PartieMultijoueurs> parties = new HashMap<>();
+		int c = 0;
+		
+		// On trouve c le nombre maximum de parties effectuées aujourd'hui
+		for(Joueur j : joueurs.values()) {
+			if(j instanceof Humain) {				
+				try {
+					parties = ((Humain)j).getPartiesJour(ceJour);
+				} catch (PartieNonTrouveeException e) {}
+			}
+			if(parties.size() > c) {
+				c = parties.size();
+			}
+		}
+		
+		// On ajoute les joueurs dans l'ordre du nombre de parties jouées aujourd'hui
+		while(c > 0 && classement.size() < max) {
+			for(Joueur j : joueurs.values()) {
+				if(j instanceof Humain) {					
+					try {
+						parties = ((Humain)j).getPartiesJour(ceJour);
+						if(parties.size() == c) {
+							classement.put(j.getPseudo(), c);
+						}
+					} catch (PartieNonTrouveeException e) {}
+				}
+			}
+			c--;
+		}
+		
+		if(classement.isEmpty()) {
+			throw new JoueurNonTrouveException();
+		}
+		return classement;
+	}
+	
+	/**
+	 * Recherche les jeux ayant été le plus joué ainsi que le nombre de parties jouées.</br>
+	 * </br>
+	 * Hypothèse : On ne prend pas en compte le fait qu'une partie soit jouée par 2 joueurs (car elle est enregistrée pour les 2 si ce sont des humains). Un jeu a été joué 1 fois si un joueur {@code Humain} y a joué.
+	 * 
+	 * @param joueurs : la map des joueurs de l'application avec pour clé leur pseudo
+	 * @param jeux : la collection de jeux de l'application
+	 * @param max : le nombre maximum de joueurs à garder pour le classement
+	 * 
+	 * @return une map (non triée) du rang du jeu et du nombre de fois où on y a joué
+	 * @throws JeuNonTrouveException 
+	 */
+	@SuppressWarnings({ "deprecation", "unused" })
+	private static Map<Integer, Integer> classementJeuxLesPlusPopulaires(Map<String, Joueur> joueurs, Collection<Jeu> jeux) throws JeuNonTrouveException {
+		Map<Integer, Integer> classement = new HashMap<>();
+		
+		// On met tous les jeux à 0
+		for(Jeu j : jeux) {
+			classement.put(j.getRang(), 0);
+		}
+		
+		Date now = new Date();
+		int year = 1900 + now.getYear();
+		int month = 1 + now.getMonth();
+		int day = now.getDate();
+		String ceJour = year + "/" + month + "/" + day;
+		
+		// On ajoute +1 au jeu s'il a été joué lors d'une partie		
+		for(Joueur j : joueurs.values()) {
+			if(j instanceof Humain) {
+				try {
+					for(PartieMultijoueurs pm : ((Humain)j).getPartiesJour(ceJour).values()) {
+						classement.put(pm.getJeu().getRang(), +1);
+						// classement.get(pm.getJeu().getRang() + 1
+					}
+				} catch (PartieNonTrouveeException e) {}
+			}
+		}
+		
+		
+		
+		if(classement.isEmpty()) {
+			throw new JeuNonTrouveException();
+		}
+		return classement;
+	}
 	
 	/**
 	 * Tout ce qui concerne le {@code Joueur} en lui même (création du compte, connexion, accueil du joueur sur son profil, affichage du profil, déconnexion)
@@ -329,7 +437,6 @@ public class Menus {
 		private static Pair<Options, String> creationCompte(Map<String, Joueur> joueurs, SortedSet<String> plateformes, boolean estEnfant) {
 			// Choix du futur pseudo (ne doit pas déjà exister et doit faire plus de 3 caractères)
 			System.out.print("Pseudo: ");
-			Scanner sc = new Scanner(System.in);
 			String pseudo = sc.nextLine();
 			if(joueurs != null) {
 				while(joueurs.containsKey(pseudo) || pseudo.length() < 3) {
@@ -337,7 +444,7 @@ public class Menus {
 						System.out.println("Ce pseudo est déjà utilisé. Veuillez en choisir un autre");
 						System.out.print("Pseudo: ");
 						sc = new Scanner(System.in);
-						pseudo = sc.nextLine();						
+						pseudo = sc.nextLine();
 					}
 					if(pseudo.length() < 3) {
 						System.out.println("Ce pseudo est trop court. Veuillez choisir un pseudo de 3 caractères ou plus.");
@@ -434,13 +541,11 @@ public class Menus {
 					// Vérifier si le joueur a bien été ajouté (et s'il n'est pas en double)
 					if(tailleApres == tailleAvant + 1) {
 						System.out.println("Compte créé avec succès!");
-						resultat.setFirst(Options.AFFICHAGE_PROFIL);
-						resultat.setSecond(pseudo);
+						resultat.setBoth(Options.AFFICHAGE_PROFIL, pseudo);
 						System.out.println("Affichage de votre profil Standard...");						
 					} else {
 						System.out.println("Erreur dans la création du compte. Veuillez réessayer.");
-						resultat.setFirst(Options.ACCUEIL);
-						resultat.setSecond("");
+						resultat.setBoth(Options.ACCUEIL, "");
 					}
 					break;
 				case "G":
@@ -451,28 +556,24 @@ public class Menus {
 						joueurs.put(pseudo, new Enfant(pseudo, email, dateNaissance, console, statut));
 					} else {						
 						joueurs.put(pseudo, new Gold(pseudo, email, dateNaissance, console));
-						// Vérifier si joueur bien ajouté (et s'il n'est pas en double (exception ?))
 					}
 					tailleApres = joueurs.size();
+					// Vérifier si joueur bien ajouté (et s'il n'est pas en double (exception ?))
 					if(tailleApres == tailleAvant + 1) {						
 						System.out.println("Compte créé avec succès!");
-						resultat.setFirst(Options.AFFICHAGE_PROFIL);
-						resultat.setSecond(pseudo);
+						resultat.setBoth(Options.AFFICHAGE_PROFIL, pseudo);
 						System.out.println("Affichage de votre profil Gold...");
 					} else {
 						System.out.println("Erreur dans la création du compte. Veuillez réessayer.");
-						resultat.setFirst(Options.ACCUEIL);
-						resultat.setSecond("");
+						resultat.setBoth(Options.ACCUEIL, "");
 					}
 					break;
 				case "R":
 					System.out.print(Menus.SEPARATEUR);
-					resultat.setFirst(Options.ACCUEIL);
-					resultat.setSecond("");
+					resultat.setBoth(Options.ACCUEIL, "");
 					break;
 				case "Q":
-					resultat.setFirst(Options.QUITTER);
-					resultat.setSecond("");
+					resultat.setBoth(Options.QUITTER, "");
 					break;
 				default:
 					System.out.println("Ce statut n'est pas disponible. Veuillez choisir un statut existant.");
@@ -494,7 +595,7 @@ public class Menus {
 		 */
 		private static Pair<Options, String> connexion(Map<String, Joueur> joueurs, SortedSet<String> plateformes) {
 			System.out.print("Votre pseudo: ");
-			Scanner sc = new Scanner(System.in);
+			sc = new Scanner(System.in);
 			String pseudo = sc.nextLine();
 			
 			if(!joueurs.isEmpty()) {
@@ -519,13 +620,11 @@ public class Menus {
 					}
 				}
 				
-				resultat.setFirst(Options.AFFICHAGE_PROFIL);
-				resultat.setSecond(pseudo);
+				resultat.setBoth(Options.AFFICHAGE_PROFIL, pseudo);
 					
 			} else {
 				System.out.println("\nAucun joueurs inscrits. Retour à l'écran d'accueil...");
-				resultat.setFirst(Options.ACCUEIL);
-				resultat.setSecond("");
+				resultat.setBoth(Options.ACCUEIL, "");
 			}
 			return resultat;
 		}
@@ -544,7 +643,7 @@ public class Menus {
 			System.out.print("1. Création de compte\n2. Connexion\n3. Quitter");
 			System.out.print(Menus.SEPARATEUR);
 			System.out.print("Votre choix : ");
-			Scanner sc = new Scanner(System.in);
+			sc = new Scanner(System.in);
 			
 			String choix = sc.nextLine();
 			
@@ -556,13 +655,11 @@ public class Menus {
 				resultat = connexion(joueurs, plateformes);
 				break;
 			case "3":
-				resultat.setFirst(Options.QUITTER);
-				resultat.setSecond("");
+				resultat.setBoth(Options.QUITTER, "");
 				break;
 			default:
 				System.out.println("Veuillez choisir une des options ci-dessous.");
-				resultat.setFirst(Options.ACCUEIL);
-				resultat.setSecond("");
+				resultat.setBoth(Options.ACCUEIL, "");
 				break;
 			}
 			return resultat;
@@ -613,7 +710,7 @@ public class Menus {
 				String choixStr = "";
 				while(!choixStr.matches("\\d+")) {					
 					System.out.print("Votre choix : ");
-					Scanner sc = new Scanner(System.in);
+					sc = new Scanner(System.in);
 					choixStr = sc.nextLine();
 				}
 				choix = Integer.parseInt(choixStr);
@@ -640,20 +737,17 @@ public class Menus {
 			System.out.println(Menus.CHOIX_OUI);
 			System.out.println(Menus.CHOIX_NON);
 			System.out.print("Votre choix : ");
-			Scanner sc = new Scanner(System.in);
+			sc = new Scanner(System.in);
 			String choix = sc.nextLine();
 			switch(choix) {
 			case "O":
-				resultat.setFirst(Options.ACCUEIL);
-				resultat.setSecond("");
+				resultat.setBoth(Options.ACCUEIL, "");
 				break;
 			case "N":
-				resultat.setFirst(Options.AFFICHAGE_PROFIL);
-				resultat.setSecond(joueurActif);
+				resultat.setBoth(Options.AFFICHAGE_PROFIL, joueurActif);
 				break;
 			default:
-				resultat.setFirst(Options.DECONNEXION);
-				resultat.setSecond(joueurActif);
+				resultat.setBoth(Options.DECONNEXION, joueurActif);
 				break;
 			}
 			return resultat;
@@ -706,8 +800,7 @@ public class Menus {
 					} catch (PlusDePlaceListeAmisException e) {
 						System.out.println(e.getMessage());
 						System.out.println("Faites de la place dans votre liste d'amis et recommencez.");
-						resultat.setFirst(Options.AFFICHAGE_PROFIL);
-						resultat.setSecond(joueurActif);
+						resultat.setBoth(Options.AFFICHAGE_PROFIL, joueurActif);
 						return resultat;
 					}
 					System.out.println("Ajout réussi !");
@@ -716,7 +809,7 @@ public class Menus {
 					while(joueurs.get(choix) == null && !choix.equals("N")) {
 						System.out.println("Votre enfant a-t-il un autre parent/tuteur inscrit ?");
 						System.out.print("Si oui, entrez son pseudo. Sinon, entrez N : ");
-						Scanner sc = new Scanner(System.in);
+						sc = new Scanner(System.in);
 						choix = sc.nextLine();
 						switch(choix) {
 						case "N":
@@ -728,8 +821,7 @@ public class Menus {
 									((Enfant)joueurs.get(enfant)).inscrire(2, (Gold)joueurs.get(choix));
 								} catch (PlusDePlaceListeAmisException e) {
 									System.out.println(e.getMessage());
-									resultat.setFirst(Options.AFFICHAGE_PROFIL);
-									resultat.setSecond(enfant);
+									resultat.setBoth(Options.AFFICHAGE_PROFIL, enfant);
 									return resultat;
 								}
 								System.out.println("Ajout réussi !");
@@ -743,8 +835,7 @@ public class Menus {
 				
 			} else {
 				System.out.println("Vous ne pouvez pas inscrire d'autres personnes.");
-				resultat.setFirst(Options.AFFICHAGE_PROFIL);
-				resultat.setSecond(joueurActif);
+				resultat.setBoth(Options.AFFICHAGE_PROFIL, joueurActif);
 			}
 			return resultat;
 		}
@@ -770,14 +861,13 @@ public class Menus {
 			
 			System.out.println(Menus.CHOIX_QUITTER);
 			System.out.print("Veuillez indiquer le pseudo de votre futur ami : ");
-			Scanner sc = new Scanner(System.in);
+			sc = new Scanner(System.in);
 			String pseudo = sc.nextLine();
 			
 			switch(pseudo) {
 			case "Q":
 				System.out.println("Opération annulée.");
-				resultat.setFirst(Options.AFFICHAGE_PROFIL);
-				resultat.setSecond(joueurActif);
+				resultat.setBoth(Options.AFFICHAGE_PROFIL, joueurActif);
 				break;
 			default:
 				if(joueurs.containsKey(pseudo)) {
@@ -811,12 +901,10 @@ public class Menus {
 						System.out.println("Annulation...");
 						System.out.println("Opération annulée.");
 					}
-					resultat.setFirst(Options.AFFICHAGE_PROFIL);
-					resultat.setSecond(joueurActif);
+					resultat.setBoth(Options.AFFICHAGE_PROFIL, joueurActif);
 				} else {
 					System.out.println("Ce n'est pas le pseudo d'un joueur existant.");
-					resultat.setFirst(Options.INVITER);
-					resultat.setSecond(joueurActif);
+					resultat.setBoth(Options.INVITER, joueurActif);
 				}
 				break;
 			}
@@ -841,14 +929,13 @@ public class Menus {
 			
 			System.out.println(Menus.CHOIX_QUITTER);
 			System.out.print("Veuillez indiquer le pseudo de l'ami à supprimer : ");
-			Scanner sc = new Scanner(System.in);
+			sc = new Scanner(System.in);
 			String pseudo = sc.nextLine();
 			
 			switch(pseudo) {
 			case "Q":
 				System.out.println("Opération annulée.");
-				resultat.setFirst(Options.AFFICHAGE_PROFIL);
-				resultat.setSecond(joueurActif);
+				resultat.setBoth(Options.AFFICHAGE_PROFIL, joueurActif);
 				break;
 			default:
 				if(joueurs.get(joueurActif).getAmis().contains(pseudo)) {
@@ -873,12 +960,10 @@ public class Menus {
 						System.out.println("Annulation...");
 						System.out.println("Opération annulée.");				
 					}
-					resultat.setFirst(Options.AFFICHAGE_PROFIL);
-					resultat.setSecond(joueurActif);
+					resultat.setBoth(Options.AFFICHAGE_PROFIL, joueurActif);
 				} else {
 					System.out.println("Ce n'est pas le pseudo de l'un de vos amis.");
-					resultat.setFirst(Options.SUPPRIMER);
-					resultat.setSecond(joueurActif);
+					resultat.setBoth(Options.SUPPRIMER, joueurActif);
 				}
 				break;
 			}
@@ -910,8 +995,7 @@ public class Menus {
 			
 			if(joueurs.get(joueurActif) instanceof Enfant) {
 				System.out.println("Vous ne pouvez pas offrir de jeux !!");
-				resultat.setFirst(Options.AFFICHAGE_PROFIL);
-				resultat.setSecond(joueurActif);
+				resultat.setBoth(Options.AFFICHAGE_PROFIL, joueurActif);
 				return resultat;
 			}
 			resultat = Menus.CollectionJeux.afficherListeJeux(joueurs.get(joueurActif).getJeux(), plateformes, genres, joueurActif);
@@ -926,7 +1010,7 @@ public class Menus {
 					System.out.println(Menus.CHOIX_OUI);
 					System.out.println(Menus.CHOIX_NON);
 					System.out.print("\nVoulez-vous offrir ce jeu ? : ");
-					Scanner sc = new Scanner(System.in);
+					sc = new Scanner(System.in);
 					String choix = sc.nextLine();
 					while(!choix.equals("O") && !choix.equals("N")) {
 						System.out.println("Veuillez choisir une option disponible.");
@@ -940,8 +1024,7 @@ public class Menus {
 						try {
 							amisSansBots = Menus.listeAmisSansBots(joueurs, joueurActif);
 						} catch (JoueurNonTrouveException e) {
-							resultat.setFirst(Options.AFFICHAGE_PROFIL);
-							resultat.setSecond(joueurActif);
+							resultat.setBoth(Options.AFFICHAGE_PROFIL, joueurActif);
 							return resultat;
 						}
 						
@@ -966,21 +1049,20 @@ public class Menus {
 						
 						if(choix.equals("Q")) {
 							System.out.println("Opération annulée.");
-							resultat.setFirst(Options.AFFICHAGE_PROFIL);
-							resultat.setSecond(joueurActif);
+							resultat.setBoth(Options.AFFICHAGE_PROFIL, joueurActif);
 							return resultat;
 						}
 						
 						System.out.println("Offre du jeu à " + choix + "...");
 						try {
-							boolean estAjoute = joueurs.get(choix).ajouterJeu(Menus.trouverJeuSelonRang(joueurs.get(joueurActif).getJeux(), indexJeu));
+							boolean estAjoute = joueurs.get(choix).ajouterJeu(Jeu.trouverJeuSelonRang(joueurs.get(joueurActif).getJeux(), indexJeu));
 							if(estAjoute) {
-								boolean estSupprime = joueurs.get(joueurActif).supprimerJeu(Menus.trouverJeuSelonRang(joueurs.get(joueurActif).getJeux(), indexJeu));
+								boolean estSupprime = joueurs.get(joueurActif).supprimerJeu(Jeu.trouverJeuSelonRang(joueurs.get(joueurActif).getJeux(), indexJeu));
 								if(estSupprime) {
 									System.out.println("Jeu offert à l'ami sélectionné !");								
 								} else {
 									System.out.println("Annulation...");
-									joueurs.get(choix).supprimerJeu(Menus.trouverJeuSelonRang(joueurs.get(joueurActif).getJeux(), indexJeu));
+									joueurs.get(choix).supprimerJeu(Jeu.trouverJeuSelonRang(joueurs.get(joueurActif).getJeux(), indexJeu));
 									System.out.println("Opération annulée.");
 								}
 							} else {
@@ -989,8 +1071,7 @@ public class Menus {
 							}
 						} catch (JeuNonTrouveException e) {
 							System.out.println("Le rang du jeu entré n'était pas le bon...");
-							resultat.setFirst(Options.AFFICHAGE_PROFIL);
-							resultat.setSecond(joueurActif);
+							resultat.setBoth(Options.AFFICHAGE_PROFIL, joueurActif);
 							return resultat;
 						} catch (PlusDePlaceCollectionJeuxException e) {
 							System.out.println(e.getMessage());
@@ -999,18 +1080,15 @@ public class Menus {
 							return resultat;
 						}
 						
-						resultat.setFirst(Options.AFFICHAGE_PROFIL);
-						resultat.setSecond(joueurActif);
+						resultat.setBoth(Options.AFFICHAGE_PROFIL, joueurActif);
 						break;
 					case "N":
 						System.out.println("Retour au menu d'offre de jeu à un ami...");
-						resultat.setFirst(Options.CADEAU);
-						resultat.setSecond(joueurActif);
+						resultat.setBoth(Options.CADEAU, joueurActif);
 						break;
 					default:
 						System.out.println("Retour au menu d'offre de jeu à un ami...");
-						resultat.setFirst(Options.CADEAU);
-						resultat.setSecond(joueurActif);
+						resultat.setBoth(Options.CADEAU, joueurActif);
 						break;
 					}
 				}
@@ -1055,12 +1133,11 @@ public class Menus {
 			}
 			System.out.println(Menus.CHOIX_QUITTER);
 			System.out.print("Choisir une nouvelle console à ajouter (choisir le numéro associé) : ");
-			Scanner sc = new Scanner(System.in);
+			sc = new Scanner(System.in);
 			String choix = sc.nextLine();
 			while(!choix.matches("\\d+")) {
 				if(choix.equals("Q")) {
-					resultat.setFirst(Options.AFFICHAGE_PROFIL);
-					resultat.setSecond(joueurActif);
+					resultat.setBoth(Options.AFFICHAGE_PROFIL, joueurActif);
 					return resultat;
 				}
 				System.out.println("Veuillez choisir un nombre.");
@@ -1076,8 +1153,7 @@ public class Menus {
 				sc = new Scanner(System.in);
 				choix = sc.nextLine();
 				if(choix.equals("Q")) {
-					resultat.setFirst(Options.AFFICHAGE_PROFIL);
-					resultat.setSecond(joueurActif);
+					resultat.setBoth(Options.AFFICHAGE_PROFIL, joueurActif);
 					return resultat;
 				}
 				indexConsole = Integer.parseInt(choix);
@@ -1092,8 +1168,7 @@ public class Menus {
 				System.out.println("Annulation...");
 				System.out.println("Opération annulée.");
 			}
-			resultat.setFirst(Options.AFFICHAGE_PROFIL);
-			resultat.setSecond(joueurActif);
+			resultat.setBoth(Options.AFFICHAGE_PROFIL, joueurActif);
 			return resultat;
 		}
 		
@@ -1118,8 +1193,7 @@ public class Menus {
 				System.out.println("Vous n'avez aucune console, vous ne pouvez pas en supprimer.");
 				System.out.println("Annulation...");
 				System.out.println("Opération annulée.");
-				resultat.setFirst(Options.AFFICHAGE_PROFIL);
-				resultat.setSecond(joueurActif);
+				resultat.setBoth(Options.AFFICHAGE_PROFIL, joueurActif);
 				return resultat;
 			}
 			int nombre = m.size() + 1;
@@ -1128,13 +1202,12 @@ public class Menus {
 			}
 			System.out.println(Menus.CHOIX_QUITTER);
 			System.out.print("Choisir une console à supprimer (choisir le numéro associé) : ");
-			Scanner sc = new Scanner(System.in);
+			sc = new Scanner(System.in);
 			String choix = sc.nextLine();
 			
 			while(!choix.matches("\\d+")) {
 				if(choix.equals("Q")) {
-					resultat.setFirst(Options.AFFICHAGE_PROFIL);
-					resultat.setSecond(joueurActif);
+					resultat.setBoth(Options.AFFICHAGE_PROFIL, joueurActif);
 					return resultat;
 				}
 				System.out.println("Veuillez choisir un nombre.");
@@ -1150,8 +1223,7 @@ public class Menus {
 				sc = new Scanner(System.in);
 				choix = sc.nextLine();
 				if(choix.equals("Q")) {
-					resultat.setFirst(Options.AFFICHAGE_PROFIL);
-					resultat.setSecond(joueurActif);
+					resultat.setBoth(Options.AFFICHAGE_PROFIL, joueurActif);
 					return resultat;
 				}
 				indexConsole = Integer.parseInt(choix);
@@ -1166,8 +1238,7 @@ public class Menus {
 				System.out.println("Annulation...");
 				System.out.println("Opération annulée.");
 			}
-			resultat.setFirst(Options.AFFICHAGE_PROFIL);
-			resultat.setSecond(joueurActif);
+			resultat.setBoth(Options.AFFICHAGE_PROFIL, joueurActif);
 			return resultat;
 		}
 		
@@ -1186,7 +1257,7 @@ public class Menus {
 			System.out.print("1. Ajouter une console\n2. Supprimer une console");
 			System.out.print(Menus.SEPARATEUR);
 			System.out.print("Votre choix : ");
-			Scanner sc = new Scanner(System.in);
+			sc = new Scanner(System.in);
 			
 			String choix = sc.nextLine();
 			
@@ -1199,8 +1270,7 @@ public class Menus {
 				break;
 			default:
 				System.out.println("Veuillez choisir une des options ci-dessous.");
-				resultat.setFirst(Options.GESTION_CONSOLE);
-				resultat.setSecond(joueurActif);
+				resultat.setBoth(Options.GESTION_CONSOLE, joueurActif);
 				break;
 			}
 			return resultat;
@@ -1230,8 +1300,7 @@ public class Menus {
 		public static Pair<Options, String> afficherListeJeux(Collection<Jeu> jeux, SortedSet<String> plateformes, SortedSet<String> genres, String joueurActif) {
 			if(jeux.isEmpty()) {
 				System.out.println("Aucun jeux dans votre collection...");
-				resultat.setFirst(Options.AFFICHAGE_PROFIL);
-				resultat.setSecond(joueurActif);
+				resultat.setBoth(Options.AFFICHAGE_PROFIL, joueurActif);
 				return resultat;
 			}
 			
@@ -1239,7 +1308,7 @@ public class Menus {
 			System.out.print("1. Jeux classés par machine\n2. Jeux classés par genre\n3. Recherche du titre");
 			System.out.print(Menus.SEPARATEUR);
 			System.out.print("Votre choix : ");
-			Scanner sc = new Scanner(System.in);
+			sc = new Scanner(System.in);
 			
 			String choix = sc.nextLine();
 			Collection<Jeu> jeuxTries;
@@ -1288,17 +1357,15 @@ public class Menus {
 				break;
 			default:
 				System.out.println("Veuillez choisir une des options ci-dessous.");
-				resultat.setFirst(Options.COLLECTION);
-				resultat.setSecond(joueurActif);
+				resultat.setBoth(Options.COLLECTION, joueurActif);
 				return resultat;
 			}
 			if(jeuxTries.isEmpty()) {
 				System.out.println("Aucun jeu ne correspond...");
-				resultat.setFirst(Options.AFFICHAGE_PROFIL);
+				resultat.setBoth(Options.AFFICHAGE_PROFIL, joueurActif);
 				return resultat;
 			}
-			resultat.setFirst(Options.DETAILS_JEU_PERSO);
-			resultat.setSecond(joueurActif);
+			resultat.setBoth(Options.DETAILS_JEU_PERSO, joueurActif);
 			return resultat;
 		}
 		
@@ -1313,14 +1380,13 @@ public class Menus {
 		public static Pair<Integer, Pair<Options, String>> afficherDetailsJeu(Collection<Jeu> jeux, String joueurActif) {
 			if(jeux.isEmpty()) {
 				System.out.println("Aucun jeux dans votre collection...");
-				resultat.setFirst(Options.AFFICHAGE_PROFIL);
-				resultat.setSecond(joueurActif);
+				resultat.setBoth(Options.AFFICHAGE_PROFIL, joueurActif);
 				return new Pair<>(0, resultat);
 			}
 			
 			System.out.println("\n" + Menus.CHOIX_QUITTER);
 			System.out.print("Choisissez le rang du jeu pour afficher ses détails : ");
-			Scanner sc = new Scanner(System.in);
+			sc = new Scanner(System.in);
 			String choix = sc.nextLine();
 			
 			while(!choix.matches("\\d+") && !choix.equals("Q")) {
@@ -1338,16 +1404,13 @@ public class Menus {
 					Menus.afficherDetailsJeuSelonRang(jeux, indexJeu);
 				} catch (JeuNonTrouveException e) {
 					System.out.println("Le rang du jeu entré n'était pas le bon...");
-					resultat.setFirst(Options.AFFICHAGE_PROFIL);
-					resultat.setSecond(joueurActif);
+					resultat.setBoth(Options.AFFICHAGE_PROFIL, joueurActif);
 					return new Pair<>(0, resultat);
 				}
-				resultat.setFirst(Options.DETAILS_JEU_PERSO);
-				resultat.setSecond(joueurActif);
+				resultat.setBoth(Options.DETAILS_JEU_PERSO, joueurActif);
 			} else {
 				indexJeu = 0;
-				resultat.setFirst(Options.AFFICHAGE_PROFIL);
-				resultat.setSecond(joueurActif);
+				resultat.setBoth(Options.AFFICHAGE_PROFIL, joueurActif);
 			}
 			return new Pair<>(indexJeu, resultat);
 		}
@@ -1389,8 +1452,7 @@ public class Menus {
 			
 			if(joueurs.get(joueurActif) instanceof Enfant) {
 				System.out.println("Vous ne pouvez pas acheter de jeux !!");
-				resultat.setFirst(Options.AFFICHAGE_PROFIL);
-				resultat.setSecond(joueurActif);
+				resultat.setBoth(Options.AFFICHAGE_PROFIL, joueurActif);
 				return resultat;
 			}
 			resultat = Menus.CollectionJeux.afficherListeJeux(jeux, plateformes, genres, joueurActif);
@@ -1405,7 +1467,7 @@ public class Menus {
 					System.out.println(Menus.CHOIX_OUI);
 					System.out.println(Menus.CHOIX_NON);
 					System.out.print("\nVoulez-vous acheter ce jeu ? : ");
-					Scanner sc = new Scanner(System.in);
+					sc = new Scanner(System.in);
 					String choix = sc.nextLine();
 					while(!choix.equals("O") && !choix.equals("N")) {
 						System.out.println("Veuillez choisir une option disponible.");
@@ -1418,11 +1480,10 @@ public class Menus {
 						System.out.println("Achat du jeu...");
 						boolean estAchete;
 						try {
-							estAchete = joueurs.get(joueurActif).ajouterJeu(Menus.trouverJeuSelonRang(jeux, indexJeu));
+							estAchete = joueurs.get(joueurActif).ajouterJeu(Jeu.trouverJeuSelonRang(jeux, indexJeu));
 						} catch (JeuNonTrouveException e) {
 							System.out.println("Le rang du jeu entré n'était pas le bon...");
-							resultat.setFirst(Options.AFFICHAGE_PROFIL);
-							resultat.setSecond(joueurActif);
+							resultat.setBoth(Options.AFFICHAGE_PROFIL, joueurActif);
 							return resultat;
 						} catch (PlusDePlaceCollectionJeuxException e) {
 							System.out.println(e.getMessage());
@@ -1436,17 +1497,15 @@ public class Menus {
 							System.out.println("Annulation...");
 							System.out.println("Opération annulée.");
 						}
-						resultat.setFirst(Options.AFFICHAGE_PROFIL);
+						resultat.setBoth(Options.AFFICHAGE_PROFIL, joueurActif);
 						break;
 					case "N":
 						System.out.println("Retour à la boutique...");
-						resultat.setFirst(Options.BOUTIQUE);
-						resultat.setSecond(joueurActif);
+						resultat.setBoth(Options.BOUTIQUE, joueurActif);
 						break;
 					default:
 						System.out.println("Retour à la boutique...");
-						resultat.setFirst(Options.BOUTIQUE);
-						resultat.setSecond(joueurActif);
+						resultat.setBoth(Options.BOUTIQUE, joueurActif);
 						break;
 					}
 				}
@@ -1481,16 +1540,14 @@ public class Menus {
 			
 			if(joueurs.get(joueurActif).getAmis().isEmpty()) {
 				System.out.println("Vous n'avez pas encore d'amis dans votre liste.");
-				resultat.setFirst(Options.AFFICHAGE_PROFIL);
-				resultat.setSecond(joueurActif);
+				resultat.setBoth(Options.AFFICHAGE_PROFIL, joueurActif);
 				return resultat;
 			}
 			for(String pseudo : joueurs.get(joueurActif).getAmis()) {
 				System.out.println("- " + pseudo);
 			}
 			System.out.print("\n");
-			resultat.setFirst(Options.DETAILS_PUBLIQUES_AMIS);
-			resultat.setSecond(joueurActif);
+			resultat.setBoth(Options.DETAILS_PUBLIQUES_AMIS, joueurActif);
 			return resultat;
 		}
 		
@@ -1511,7 +1568,7 @@ public class Menus {
 			
 			System.out.println("\n" + Menus.CHOIX_QUITTER);
 			System.out.print("Choisissez le pseudo du jeu pour afficher ses détails publiques : ");
-			Scanner sc = new Scanner(System.in);
+			sc = new Scanner(System.in);
 			String choix = sc.nextLine();
 			
 			while((joueurs.get(choix) == null || !joueurs.get(joueurActif).getAmis().contains(choix)) && !choix.equals("Q")) {
@@ -1527,8 +1584,7 @@ public class Menus {
 			
 			if(choix.equals("Q")) {
 				System.out.println("Opération annulée.");
-				resultat.setFirst(Options.AFFICHAGE_PROFIL);
-				resultat.setSecond(joueurActif);
+				resultat.setBoth(Options.AFFICHAGE_PROFIL, joueurActif);
 				return resultat;
 			}
 			
@@ -1536,8 +1592,7 @@ public class Menus {
 			System.out.println(joueurs.get(choix).profilPublic());
 			System.out.println(Menus.SEPARATEUR);
 			
-			resultat.setFirst(Options.DETAILS_PUBLIQUES_AMIS);
-			resultat.setSecond(joueurActif);
+			resultat.setBoth(Options.DETAILS_PUBLIQUES_AMIS, joueurActif);
 			return resultat;
 		}
 	}
@@ -1586,7 +1641,7 @@ public class Menus {
 					System.out.println(Menus.CHOIX_OUI);
 					System.out.println(Menus.CHOIX_NON);
 					System.out.print("\nVoulez-vous jouer à ce jeu ? : ");
-					Scanner sc = new Scanner(System.in);
+					sc = new Scanner(System.in);
 					String choix = sc.nextLine();
 					
 					while(!choix.equals("O") && !choix.equals("N")) {
@@ -1610,7 +1665,7 @@ public class Menus {
 							// Afficher la liste des amis pouvant jouer s'il y en a
 							Set<String> amisDispos;
 							try {
-								amisDispos = Menus.listeAmisPouvantJouer(joueurs, Menus.trouverJeuSelonRang(jeux, indexJeu), joueurActif);
+								amisDispos = Menus.listeAmisPouvantJouer(joueurs, Jeu.trouverJeuSelonRang(jeux, indexJeu), joueurActif);
 								if(!amisDispos.isEmpty()) {
 									for(String pseudo : amisDispos) {
 										System.out.println("- " + pseudo);
@@ -1634,13 +1689,12 @@ public class Menus {
 									
 									if(choix.equals("Q")) {
 										System.out.println("Opération annulée.");
-										resultat.setFirst(Options.AFFICHAGE_PROFIL);
-										resultat.setSecond(joueurActif);
+										resultat.setBoth(Options.AFFICHAGE_PROFIL, joueurActif);
 										return resultat;
 									}
 									
 									// Partie avec cet ami et enregistrement des résultats
-									PartieMultijoueurs pm = new PartieMultijoueurs(Menus.trouverJeuSelonRang(jeux, indexJeu), joueurs.get(joueurActif), joueurs.get(choix));
+									PartieMultijoueurs pm = new PartieMultijoueurs(Jeu.trouverJeuSelonRang(jeux, indexJeu), joueurs.get(joueurActif), joueurs.get(choix));
 									boolean partieJouee = pm.resultatsDePartie();
 									if(partieJouee) {
 										System.out.println("Partie en cours...");
@@ -1652,7 +1706,7 @@ public class Menus {
 										System.out.println("Retrouvez ces résultats dans vos statistiques personnelles.");
 										System.out.print(Menus.SEPARATEUR);
 										System.out.println("Retour à votre profil...");
-										resultat.setFirst(Options.AFFICHAGE_PROFIL);
+										resultat.setBoth(Options.AFFICHAGE_PROFIL, joueurActif);
 										return resultat;
 									}
 								} else {
@@ -1674,8 +1728,8 @@ public class Menus {
 							String nomBot;
 							PartieMultijoueurs pm;
 							try {
-								nomBot = Menus.gestionPartieAvecBots(joueurs, Menus.trouverJeuSelonRang(jeux, indexJeu));
-								pm = new PartieMultijoueurs(Menus.trouverJeuSelonRang(jeux, indexJeu), joueurs.get(joueurActif), joueurs.get(nomBot));
+								nomBot = Menus.gestionPartieAvecBots(joueurs, Jeu.trouverJeuSelonRang(jeux, indexJeu));
+								pm = new PartieMultijoueurs(Jeu.trouverJeuSelonRang(jeux, indexJeu), joueurs.get(joueurActif), joueurs.get(nomBot));
 							} catch (JeuNonTrouveException e1) {
 								System.out.println("Erreur dans le rang du jeu.");
 								resultat.setBoth(Options.AFFICHAGE_PROFIL, joueurActif);
@@ -1700,55 +1754,49 @@ public class Menus {
 								System.out.println("Retrouvez ces résultats dans vos statistiques personnelles.");
 								System.out.print(Menus.SEPARATEUR);
 								System.out.println("Retour à votre profil...");
-								resultat.setFirst(Options.AFFICHAGE_PROFIL);
+								resultat.setBoth(Options.AFFICHAGE_PROFIL, joueurActif);
 								return resultat;
 							}
 							
 							// Suppression des éventuels bots pour respecter les conditions du cahier des charges (voir la fonction en question)
-							//Menus.gestionBots(joueurs);
+							Menus.gestionBots(joueurs);
 							
 							break;
 						default:
 							System.out.println("Veuillez choisir une des options ci-dessous.");
-							resultat.setFirst(Options.JOUER);
-							resultat.setSecond(joueurActif);
+							resultat.setBoth(Options.JOUER, joueurActif);
 							return resultat;
 						}
 						
 						
 						// Pas d'ami pouvant jouer / Pas de module d'IA disponible : on propose un choix et on affiche les (10 MAX) joueurs les plus appropriés à inviter pour jouer
 						try {
-							Set<String> amisAptes = Menus.listeJoueursAdaptesPourJouer(joueurs, Menus.trouverJeuSelonRang(jeux, indexJeu), joueurActif);
+							Set<String> amisAptes = Menus.listeJoueursAdaptesPourJouer(joueurs, Jeu.trouverJeuSelonRang(jeux, indexJeu), joueurActif, 10);
 							System.out.println("Invitez un de ces joueurs en tant qu'ami pour pouvoir jouer avec un vrai joueur. Sinon, vous pouvez toujours jouer avec un bot.");
 							for(String a : amisAptes) {
 								System.out.println("- " + joueurs.get(a).getPseudo());
 							}
 						} catch (JoueurNonTrouveException e) {
-							resultat.setFirst(Options.AFFICHAGE_PROFIL);
-							resultat.setSecond(joueurActif);
+							resultat.setBoth(Options.AFFICHAGE_PROFIL, joueurActif);
 							return resultat;
 						} catch (JeuNonTrouveException e) {
 							System.out.println("Erreur dans le rang du jeu");
-							resultat.setFirst(Options.AFFICHAGE_PROFIL);
-							resultat.setSecond(joueurActif);
+							resultat.setBoth(Options.AFFICHAGE_PROFIL, joueurActif);
 							return resultat;
 						}
 						break;
 					case "N":
 						System.out.println("Retour au menu de choix du jeu...");
-						resultat.setFirst(Options.JOUER);
-						resultat.setSecond(joueurActif);
+						resultat.setBoth(Options.JOUER, joueurActif);
 						break;
 					default:
 						System.out.println("Retour au menu de choix du jeu...");
-						resultat.setFirst(Options.JOUER);
-						resultat.setSecond(joueurActif);
+						resultat.setBoth(Options.JOUER, joueurActif);
 						break;
 					}
 				}
 			}
-			resultat.setFirst(Options.AFFICHAGE_PROFIL);
-			resultat.setSecond(joueurActif);
+			resultat.setBoth(Options.AFFICHAGE_PROFIL, joueurActif);
 			return resultat;
 		}
 	}
@@ -1763,17 +1811,25 @@ public class Menus {
 	 */
 	public static class Statistiques {
 		/**
+		 * Permet à un joueur de voir ses statistiques personnelles.</br>
+		 * </br>
+		 * - Choix entre ses parties jouées aujourd'hui, ses parties d'un jour à choisir, et sa proportion de victoires/défaites.</br>
+		 * - Affichage de la liste des parties avec les détails pour chacune (si partie il y a).</br>
+		 * - Respectivement, affichage de la proportion de victoires/défaites et du pourcentage de victoires.</br>
+		 * - Retour direct au profil du {@code Joueur} après affichage.
 		 * 
-		 * @param joueurs
-		 * @param joueurActif
-		 * @return
+		 * @param joueurs : la map des joueurs de l'application avec pour clé leur pseudo
+		 * @param joueurActif : le pseudo du joueur actif au moment de l'appel de la fonction
+		 * 
+		 * @return l'objet {@code Pair<Options, String>} à récupérer pour le bon fonctionnement dans la classe principale
 		 */
+		@SuppressWarnings("deprecation")
 		public static Pair<Options, String> affichageStatistiquesJoueur(Map<String, Joueur> joueurs, String joueurActif) {
 			System.out.print(Menus.SEPARATEUR);
 			System.out.print("1. Partie du jour\n2. Partie d'un jour à choisir\n3. Proportion victoires/défaites");
 			System.out.print(Menus.SEPARATEUR);
 			System.out.print("Votre choix : ");
-			Scanner sc = new Scanner(System.in);
+			sc = new Scanner(System.in);
 			
 			String choix = sc.nextLine();
 			
@@ -1789,7 +1845,7 @@ public class Menus {
 					parties = ((Humain)joueurs.get(joueurActif)).getPartiesJour(year + "/" + month + "/" + day);
 				} catch (PartieNonTrouveeException e) {
 					System.out.println("Aucune partie n'a été jouée ce jour-ci...");
-					resultat.setFirst(Options.AFFICHAGE_PROFIL);
+					resultat.setBoth(Options.AFFICHAGE_PROFIL, joueurActif);
 					resultat.setSecond(joueurActif);
 					return resultat;
 				}
@@ -1824,8 +1880,7 @@ public class Menus {
 					parties = ((Humain)joueurs.get(joueurActif)).getPartiesJour(jour);
 				} catch (PartieNonTrouveeException e) {
 					System.out.println("Aucune partie n'a été jouée ce jour-ci...");
-					resultat.setFirst(Options.AFFICHAGE_PROFIL);
-					resultat.setSecond(joueurActif);
+					resultat.setBoth(Options.AFFICHAGE_PROFIL, joueurActif);
 					return resultat;
 				}
 				
@@ -1846,20 +1901,54 @@ public class Menus {
 				break;
 			default:
 				System.out.println("Veuillez choisir une des options ci-dessous.");
-				resultat.setFirst(Options.STATISTIQUES);
-				resultat.setSecond("");
+				resultat.setBoth(Options.STATISTIQUES, joueurActif);
 				break;
 			}
-			resultat.setFirst(Options.AFFICHAGE_PROFIL);
-			resultat.setSecond(joueurActif);
+			resultat.setBoth(Options.AFFICHAGE_PROFIL, joueurActif);
 			return resultat;
 		}
 		
-		/*public static Pair<Options, String> affichageStatistiquesGenerales(Map<String, Joueur> joueurs, String joueurActif) {
+		public static Pair<Options, String> affichageStatistiquesGenerales(Map<String, Joueur> joueurs, List<Jeu> jeux, String joueurActif) {
 			// Joueurs ayant le plus joué aujourd'hui
 			// Jeux les plus joués
-			
 			// Correspondrait à l'option CLASSEMENT et serait affichée dans le menu principal
-		}*/
+			
+			System.out.print(Menus.SEPARATEUR);
+			System.out.print("1. Classement des joueurs ayant le plus joué aujourd'hui\n2. Classement des jeux les plus joués\n");
+			System.out.print(Menus.SEPARATEUR);
+			System.out.print("Votre choix : ");
+			sc = new Scanner(System.in);
+			
+			String choix = sc.nextLine();
+			
+			switch(choix) {
+			case "1":
+				Map<String, Integer> classementJoueurs;
+				try {
+					classementJoueurs = Menus.classementJoueursDuJour(joueurs, 50);
+				} catch (JoueurNonTrouveException e) {
+					System.out.println("Pas de données à afficher...");
+					resultat.setBoth(Options.AFFICHAGE_PROFIL, joueurActif);
+					return resultat;
+				}
+				int c = 1;
+				for(String pseudo : classementJoueurs.keySet()) {
+					System.out.println(c + ". " + pseudo + ", nombre de parties jouées : " + classementJoueurs.get(pseudo));
+					c++;
+				}
+				break;
+			case "2":
+				//Map<Integer, Integer> classementJeux;
+				System.out.println("Pas de données à afficher ici pour l'instant...");
+				resultat.setBoth(Options.AFFICHAGE_PROFIL, joueurActif);
+				return resultat;
+			default:
+				System.out.println("Veuillez choisir une des options ci-dessous.");
+				resultat.setBoth(Options.CLASSEMENT, joueurActif);
+				break;
+			}
+			resultat.setBoth(Options.AFFICHAGE_PROFIL, joueurActif);
+			return resultat;
+		}
 	}
 }

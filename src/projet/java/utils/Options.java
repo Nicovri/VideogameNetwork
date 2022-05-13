@@ -35,6 +35,7 @@ public enum Options {
 	AFFICHAGE_AMIS("Votre liste d'amis"),
 	DETAILS_PUBLIQUES_AMIS("détails publiques de vos amis", false, true),
 	STATISTIQUES("Vos statistiques personnelles"),
+	CLASSEMENT("Classement général"),
 	INVITER("Inviter un ami"),
 	SUPPRIMER("Supprimer un ami"),
 	BOUTIQUE("Boutique", true, false),
@@ -43,8 +44,6 @@ public enum Options {
 	GESTION_CONSOLE("Gestionnaire de vos consoles"),
 	DECONNEXION("Déconnexion"),
 	QUITTER("quitter l'application", false, true);
-	
-	// CLASSEMENT
 	
 	private static class Compteur {
 		private static int index = 0;

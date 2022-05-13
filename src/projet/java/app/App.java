@@ -19,14 +19,9 @@ import java.util.TreeSet;
 
 import projet.java.err.collecVide.ListeVideException;
 import projet.java.err.collecVide.SetVideException;
-import projet.java.err.plusDePlace.PlusDePlaceCollectionJeuxException;
-import projet.java.err.plusDePlace.PlusDePlaceListeAmisException;
-import projet.java.err.plusDePlace.PlusDePlaceNombreDePartiesException;
 import projet.java.jeux.Jeu;
-import projet.java.jeux.PartieMultijoueurs;
 import projet.java.joueurs.Enfant;
 import projet.java.joueurs.Gold;
-import projet.java.joueurs.Humain;
 import projet.java.joueurs.Joueur;
 import projet.java.joueurs.Standard;
 import projet.java.utils.Options;
@@ -143,19 +138,6 @@ public class App {
 		this.joueurs.put("enfant10", new Enfant("enfant10", "enfant10@test.fr", new Date(), "Wii", "G"));
 		this.joueurs.put("enfant11", new Enfant("enfant11", "enfant11@test.fr", new Date(), "Wii", "G"));
 		this.joueurs.put("enfant12", new Enfant("enfant12", "enfant12@test.fr", new Date(), "Wii", "G"));
-		// Test pour la méthode jouer
-		try {
-			this.joueurs.get("nicolas").ajouterAmi(this.joueurs.get("paul56"));
-			this.joueurs.get("nicolas").ajouterJeu(this.dataJeux.get(0));
-			this.joueurs.get("paul56").ajouterAmi(this.joueurs.get("nicolas"));
-			this.joueurs.get("paul56").ajouterJeu(this.dataJeux.get(8));
-		} catch (PlusDePlaceListeAmisException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		} catch (PlusDePlaceCollectionJeuxException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
 	}
 
 	/**
@@ -167,13 +149,13 @@ public class App {
 	 * <li>args[1] est le mode d'affichage de l'application</li>
 	 * <ul>
 	 * <li>1 pour CLI</li>
-	 * <li>2 pour JavaFX</li>
+	 * <li>2 pour JavaFX (pas encore disponible)</li>
 	 * <li>Un autre nombre ne lancera pas l'application</li>
 	 * </ul>
 	 * </ul>
 	 * 
 	 * En mode CLI, chaque fonction utilisée retourne une valeur pour la variable parametres.
-	 * Selon l'option retournée, la fonction suivante sera appelée, tant que l'option quitter n'est pas retournée.
+	 * Selon l'option retournée, la fonction correspondante sera appelée, tant que l'option quitter n'est pas retournée.
 	 * 
 	 * @see projet.java.app.Menus
 	 * @see projet.java.utils.Options
@@ -242,6 +224,9 @@ public class App {
 				case STATISTIQUES:
 					app.parametres = Menus.Statistiques.affichageStatistiquesJoueur(app.joueurs, app.parametres.getSecond());
 					break;
+				case CLASSEMENT:
+					app.parametres = Menus.Statistiques.affichageStatistiquesGenerales(app.joueurs, app.dataJeux, app.parametres.getSecond());
+					break;
 				case INSCRIRE_ENFANT:
 					app.parametres = Menus.Interactions.inscrireSonEnfant(app.joueurs, app.plateformes, app.parametres.getSecond());
 					break;
@@ -268,6 +253,7 @@ public class App {
 				}
 			}
 			// Faire le nécessaire avant de quitter l'aplication (base de données, libération de la mémoire, etc.)
+			Menus.closeSc();
 			app.parametres.setFirst(Options.ACCUEIL);
 			app.parametres.setSecond("");
 			break;

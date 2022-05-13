@@ -7,6 +7,14 @@ import projet.java.jeux.Jeu;
 import projet.java.jeux.PartieMultijoueurs;
 import projet.java.utils.Pair;
 
+/**
+ * Classe représentant un joueur adulte sous statut {@code Gold}.
+ * 
+ * @author Nicolas Vrignaud
+ *
+ * @see projet.java.joueurs.Humain
+ * @see projet.java.joueurs.Standard
+ */
 public class Gold extends Humain {
 	private final int PARTIES_MAX = 10;
 	//private int argent;

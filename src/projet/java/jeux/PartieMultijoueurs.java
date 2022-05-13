@@ -3,11 +3,17 @@ package projet.java.jeux;
 import projet.java.joueurs.Joueur;
 import projet.java.err.joueur2.Joueur2NonBotException;
 import projet.java.err.joueur2.Joueur2NonHumainException;
-import projet.java.err.nonTrouve.JoueurNonTrouveException;
 import projet.java.err.plusDePlace.PlusDePlaceNombreDePartiesException;
 import projet.java.joueurs.Bot;
 import projet.java.joueurs.Humain;
 
+/**
+ * Classe modèle d'une partie multijoueurs entre 2 joueurs.</br>
+ * Contient aussi le jeu auquel ils vont jouer, ainsi que les pseudos du gagnant et du perdant.</br>
+ * joueurs[0] doit être le joueur qui demande à jouer, et joueurs[1] doit être son ami ou un bot.
+ * 
+ * @author Nicolas Vrignaud
+ */
 public class PartieMultijoueurs {
 	private Jeu jeu;
 	private Joueur[] joueurs = new Joueur[2];
@@ -20,6 +26,7 @@ public class PartieMultijoueurs {
 		this.joueurs[1] = ami;
 	}
 	
+	public Jeu getJeu() { return this.jeu; }
 	public String getPseudoGagnant() { return this.pseudoGagnant; }
 	public String getPseudoPerdant() { return this.pseudoPerdant; }
 	
@@ -32,6 +39,16 @@ public class PartieMultijoueurs {
 		return b.toString();
 	}
 	
+	/**
+	 * On vérifie si la partie est possible entre les 2 joueurs {@code Humain} :</br>
+	 * - Sont-ils amis réciproquement ?</br>
+	 * - Joueur1 a-t-il le jeu en question et la console qui lui permet-il de jouer à son propre jeu ?</br>
+	 * - Joueur2 a-t-il le jeu, indépendamment de la console de Joueur1, et sa console lui permet-il de jouer à son propre jeu ?</br>
+	 * 
+	 * @return la partie entre 2 joueurs {@code Humain} est-elle possible ?
+	 * 
+	 * @throws Joueur2NonHumainException
+	 */
 	public boolean partiePossibleHumain() throws Joueur2NonHumainException {
 		if(!(joueurs[1] instanceof Humain)) {
 			throw new Joueur2NonHumainException(joueurs[1]);
@@ -65,6 +82,15 @@ public class PartieMultijoueurs {
 		return partiePossible;
 	}
 	
+	/**
+	 * On vérifie si la partie est possible entre les 2 joueurs, 1 {@code Humain} et 1 {@code Bot} :</br>
+	 * - Joueur1 a-t-il le jeu en question et la console qui lui permet-il de jouer à son propre jeu ?</br>
+	 * - Le jeu contient-il un module d'IA disponible ? (on regarde l'année à partir de laquelle les modules d'IA sont disponibles)
+	 * 
+	 * @return la partie entre 2 joueurs, 1 {@code Humain} et 1 {@code Bot} est-elle possible ?
+	 * 
+	 * @throws Joueur2NonBotException
+	 */
 	public boolean partiePossibleBot() throws Joueur2NonBotException {
 		if(!(joueurs[1] instanceof Bot)) {
 			throw new Joueur2NonBotException(joueurs[1]);
@@ -88,8 +114,11 @@ public class PartieMultijoueurs {
 		return partiePossible;
 	}
 	
-	// Si choix de jeu possible, paramètres à ajouter à cette fonction
-	// On suppose qu'il n'y a jamais de match nul
+	/**
+	 * Jeu joué par les 2 joueurs pour déterminer qui est le gagant et qui es le perdant.</br>
+	 * </br>
+	 * Hypothèse : il n'y a jamais de match nul.
+	 */
 	private void jouer() {
 		if(this.pseudoGagnant.isEmpty() && this.pseudoPerdant.isEmpty()) {			
 			double res1 = Math.random() * 100;
@@ -106,6 +135,13 @@ public class PartieMultijoueurs {
 		}
 	}
 	
+	/**
+	 * Regarde si la partie est possible, les joueurs jouent, et les données de partie sont enregistrées dans leur liste respective.
+	 * 
+	 * @return la partie a-t-elle bien été jouée et ajoutée à la liste de partie des joueurs (sauf {@code Bot})
+	 * 
+	 * @throws PlusDePlaceNombreDePartiesException
+	 */
 	public boolean resultatsDePartie() throws PlusDePlaceNombreDePartiesException {
 		boolean partiePossible;
 		try {
@@ -128,7 +164,6 @@ public class PartieMultijoueurs {
 				if(this.joueurs[1] instanceof Humain) {					
 					partieAjoutee = ((Humain)this.joueurs[1]).ajouterPartie(this).getSecond().getSecond();
 					if(partieAjoutee) {
-						// Parties ajoutées avec succès
 						return true;
 					}
 				}
