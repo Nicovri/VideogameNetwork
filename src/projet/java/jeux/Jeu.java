@@ -9,7 +9,7 @@ import java.util.SortedSet;
 import projet.java.err.nonTrouve.JeuNonTrouveException;
 
 /**
- * Classe modèle d'un {@code Jeu}.</br>
+ * Classe modèle d'un {@code Jeu}.<br/>
  * Ses données membres permettent d'identifier quelles informations peuvent être parsées depuis le fichier d'entrée.
  * 
  * @author Nicolas Vrignaud
@@ -52,7 +52,7 @@ public class Jeu {
 	public String getAnnee() { return this.annee.toString(); }
 	
 	/**
-	 * Affichage des informations précises sur un {@code Jeu}.</br>
+	 * Affichage des informations précises sur un {@code Jeu}.<br/>
 	 * (Utile lorsque les détails d'un jeu doivent être parcourus, lors de l'achat par exemple)
 	 */
 	@Override
@@ -83,7 +83,7 @@ public class Jeu {
 	}
 	
 	/**
-	 * Retourne la collection de jeux entrée en paramètres triée par machines de jeu (dans l'ordre alphabétique).
+	 * Retourne la collection de jeux entrée en paramètres triée par machines de jeu (dans l'ordre alphabétique).<br/>
 	 * Les jeux gardent leur rang lors de l'affichage, ce qui permet de choisir facilement le jeu par la suite.
 	 * 
 	 * @param jeux : une collection de jeux
@@ -104,7 +104,7 @@ public class Jeu {
 	}
 	
 	/**
-	 * Retourne la collection de jeux entrée en paramètres triée par genres (dans l'ordre alphabétique).</br>
+	 * Retourne la collection de jeux entrée en paramètres triée par genres (dans l'ordre alphabétique).<br/>
 	 * Les jeux gardent leur rang lors de l'affichage, ce qui permet de choisir facilement le jeu par la suite.
 	 * 
 	 * @param jeux : une collection de jeux
@@ -125,7 +125,7 @@ public class Jeu {
 	}
 	
 	/**
-	 * Recherche un jeu dans une collection en fonction de son titre.</br>
+	 * Recherche un jeu dans une collection en fonction de son titre.<br/>
 	 * Si son titre contient le mot clé demandé, il est ajouté à la liste des jeux correspondants à la recherche.
 	 * 
 	 * @param jeux : une collection de jeux

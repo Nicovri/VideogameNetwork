@@ -10,7 +10,7 @@ import projet.java.jeux.PartieMultijoueurs;
 import projet.java.utils.Pair;
 
 /**
- * Classe représentant un joueur adulte sous statut {@code Gold}.</br>
+ * Classe représentant un joueur adulte sous statut {@code Gold}.<br/>
  * ({@code extends Gold}, car il a les mêmes fonctionalités, juste un nombre d'amis et de jeux limités)
  * 
  * @author Nicolas Vrignaud

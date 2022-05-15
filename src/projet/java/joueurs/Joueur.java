@@ -11,7 +11,7 @@ import projet.java.err.plusDePlace.PlusDePlaceListeAmisException;
 import projet.java.jeux.Jeu;
 
 /**
- * Classe de base d'un joueur.</br>
+ * Classe de base d'un joueur.<br/>
  * Se décline en plusieurs catégories plus précises qui permettent de différencier le statut des joueurs (c'est pour cette raison que la classe est {@code abstract}, on ne veut pas pouvoir l'instancier)
  * 
  * @author Nicolas Vrignaud
@@ -58,7 +58,7 @@ public abstract class Joueur {
 	public String profilPublic() { return this.pseudo; }
 	
 	/**
-	 * Essaie d'ajouter un ami selon les conditions demandées.</br>
+	 * Essaie d'ajouter un ami selon les conditions demandées.<br/>
 	 * (des conditions plus précises, notamment de place sont traités dans les classes filles)
 	 * 
 	 * @param j : {@code Joueur} à ajouter en ami
@@ -93,7 +93,7 @@ public abstract class Joueur {
 	}
 	
 	/**
-	 * Essaie de supprimer un ami selon les conditions demandées.</br>
+	 * Essaie de supprimer un ami selon les conditions demandées.<br/>
 	 * (des conditions plus précises, notamment de place sont traités dans les classes filles)
 	 * 
 	 * @param j : {@code Joueur} à supprimer de sa liste d'amis
@@ -122,7 +122,7 @@ public abstract class Joueur {
 	}
 	
 	/**
-	 * Essaie d'ajouter un {@code Jeu} selon les conditions demandées.</br>
+	 * Essaie d'ajouter un {@code Jeu} selon les conditions demandées.<br/>
 	 * (des conditions plus précises, notamment de place sont traités dans les classes filles)
 	 * 
 	 * @param j : le {@code Jeu} à ajouter à sa collection
@@ -146,7 +146,7 @@ public abstract class Joueur {
 	}
 	
 	/**
-	 * Essaie de supprimer un {@code Jeu} selon les conditions demandées.</br>
+	 * Essaie de supprimer un {@code Jeu} selon les conditions demandées.<br/>
 	 * (des conditions plus précises, notamment de place sont traités dans les classes filles)
 	 * 
 	 * @param j : le {@code Jeu} à supprimer de sa collection de jeux

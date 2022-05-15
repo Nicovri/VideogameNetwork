@@ -14,7 +14,7 @@ import projet.java.jeux.PartieMultijoueurs;
 import projet.java.utils.Pair;
 
 /**
- * Classe représentant un joueur {@code Humain} (Standard, Gold ou Enfant).</br>
+ * Classe représentant un joueur {@code Humain} (Standard, Gold ou Enfant).<br/>
  * Se décline en plusieurs catégories plus précises qui permettent de différencier le statut des joueurs (c'est pour cette raison que la classe est {@code abstract}, on ne veut pas pouvoir l'instancier)
  * 
  * @author Nicolas Vrignaud
@@ -58,15 +58,16 @@ public abstract class Humain extends Joueur {
 	}
 	
 	/**
-	 * Profil privé du joueur.</br>
+	 * Profil privé du joueur.<br/>
 	 * Un bot ne peut pas voir son propre profil car ce n'est pas un humain, inutile donc d'avoir cette méthode dans la classe {@code Bot}, donc dans la classe {@code Joueur}
 	 */
 	@Override
 	public String toString() {
 		StringBuilder b = new StringBuilder();
 		b.append(this.getPseudo());
-		b.append("\n-  " + this.getEmail());
-		b.append("\n-  " + Joueur.DATE_NAISSANCE_FORMAT.format(this.getDateNaissance()) + "\n");
+		b.append("\n-  Statut : " + this.getClass().getSimpleName());
+		b.append("\n-  Email : " + this.getEmail());
+		b.append("\n-  Date de naissance : " + Joueur.DATE_NAISSANCE_FORMAT.format(this.getDateNaissance()) + "\n");
 		for(String machine : this.machinesDeJeu) {
 			b.append(machine + " / ");
 		}
@@ -74,7 +75,7 @@ public abstract class Humain extends Joueur {
 	}
 	
 	/**
-	 * Essaie d'ajouter une partie jouée à la liste selon les conditions demandées.</br>
+	 * Essaie d'ajouter une partie jouée à la liste selon les conditions demandées.<br/>
 	 * (des conditions plus précises, notamment de place sont traités dans les classes filles)
 	 * 
 	 * @param pm : partie multijoueurs jouée par le joueur

@@ -3,8 +3,8 @@ package projet.java.utils;
 import java.io.Serializable;
 
 /**
- * Paire utilisée pour la liaison entre les 2 classes Menus et App.</br>
- * </br>
+ * Paire utilisée pour la liaison entre les 2 classes Menus et App.<br/>
+ * <br/>
  * Plusieurs fonctions qui permettent d'obtenir les valeur, et de les modifier, soit une par une, soit toutes les deux.
  * 
  * @author Nicolas Vrignaud

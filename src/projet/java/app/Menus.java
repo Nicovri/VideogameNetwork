@@ -33,7 +33,7 @@ import projet.java.utils.Options;
 import projet.java.utils.Pair;
 
 /**
- * Classe secondaire de l'application.</br>
+ * Classe secondaire de l'application.<br/>
  * Les sous-classes sont directement liées à la class projet.java.app.App et représentent les fonctionnalités disponibles.
  * 
  * @author Nicolas Vrignaud
@@ -58,9 +58,9 @@ public class Menus {
 	/**
 	 * (Quitter) Avant une entrée de texte par l'utilisateur, permet un affichage des choix alternatifs proposés à l'utilisateur
 	 * 
-	 * @see projet.java.app.Menus#CHOIX_RECOMMENCER </br>(Recommencer)
-	 * @see projet.java.app.Menus#CHOIX_OUI </br>(Oui)
-	 * @see projet.java.app.Menus#CHOIX_NON </br>(Non)
+	 * @see projet.java.app.Menus#CHOIX_RECOMMENCER <br/>(Recommencer)
+	 * @see projet.java.app.Menus#CHOIX_OUI <br/>(Oui)
+	 * @see projet.java.app.Menus#CHOIX_NON <br/>(Non)
 	 */
 	private final static String CHOIX_QUITTER = "(Pour quitter, entrez Q)";
 	private final static String CHOIX_RECOMMENCER = "(Pour recommencer, entrez R)";
@@ -68,7 +68,7 @@ public class Menus {
 	private final static String CHOIX_NON = "(Pour refuser, entrez N)";
 	
 	/**
-	 * Ferme le {@code Scanner} ouvert lors de sa déclaration.</br>
+	 * Ferme le {@code Scanner} ouvert lors de sa déclaration.<br/>
 	 * A utiliser UNIQUEMENT à la fin du programme, sinon System.in n'est plus accessible et propage {@code NoSuchElementException} lors de l'utilisation suivante de sc.
 	 */
 	public static void closeSc() {
@@ -163,9 +163,9 @@ public class Menus {
 	}
 	
 	/**
-	 * Gestionnaire des bots présents dans l'application.</br>
-	 * </br>
-	 * On aura après l'appel de cette fonction 1 seul bot par jeu.</br>
+	 * Gestionnaire des bots présents dans l'application.<br/>
+	 * <br/>
+	 * On aura après l'appel de cette fonction 1 seul bot par jeu.<br/>
 	 * TODO : indépendamment de la console.
 	 * 
 	 * @param joueurs : la map des joueurs de l'application avec pour clé leur pseudo
@@ -197,10 +197,10 @@ public class Menus {
 	}
 	
 	/**
-	 * Gestionnaire d'un partie avec un bot.</br>
+	 * Gestionnaire d'un partie avec un bot.<br/>
 	 * Soit on crée un nouveau bot et on le retourne, soit on retourne un bot déjà existant auquel
-	 * on ajoute (si nécessaire) le jeu demandé.</br>
-	 * </br>
+	 * on ajoute (si nécessaire) le jeu demandé.<br/>
+	 * <br/>
 	 * Hypothèse : Un bot peut jouer à plusieurs parties du même jeu en même temps
 	 * mais pas 2 parties de jeux différents en même temps.
 	 * 
@@ -238,14 +238,13 @@ public class Menus {
 	}
 	
 	/**
-	 * Retourne la liste des joueurs avec lesquels on peut jouer au jeu passé en paramètres.</br>
+	 * Retourne la liste des joueurs avec lesquels on peut jouer au jeu passé en paramètres.<br/>
 	 * Les amis ne sont pas exclus lors de la recherche.
-	 * </br>
+	 * <br/>
 	 * Hypothèse : les joueurs sont :
 	 * <ul>
-	 * <li>Les joueurs qui possèdent le plus de jeux en commun et ayant la possibilité de jouer,
-	 * càd ayant la console appropriée à leur jeu et respectant les conditions d'ajout en tant qu'ami</li>
-	 * <li>Si on ne peut pas départager, les joueurs qui possèdent de la place dans leur liste d'amis</li>
+	 *   <li>Les joueurs qui possèdent le plus de jeux en commun et ayant la possibilité de jouer, càd ayant la console appropriée à leur jeu et respectant les conditions d'ajout en tant qu'ami</li>
+	 *   <li>Si on ne peut pas départager, les joueurs qui possèdent de la place dans leur liste d'amis</li>
 	 * </ul> 
 	 * 
 	 * @param joueurs : la map des joueurs de l'application avec pour clé leur pseudo
@@ -301,8 +300,8 @@ public class Menus {
 	}
 	
 	/**
-	 * Recherche les joueurs ayant le plus joué aujourd'hui et de leur nombre de parties.</br>
-	 * </br>
+	 * Recherche les joueurs ayant le plus joué aujourd'hui et de leur nombre de parties.<br/>
+	 * <br/>
 	 * Hypothèse : les bots ne comptent pas, on ne garde que les joueurs de la classe {@code Humain}.
 	 * 
 	 * @param joueurs : la map des joueurs de l'application avec pour clé leur pseudo
@@ -358,8 +357,8 @@ public class Menus {
 	}
 	
 	/**
-	 * Recherche les jeux ayant été le plus joué ainsi que le nombre de parties jouées.</br>
-	 * </br>
+	 * Recherche les jeux ayant été le plus joué ainsi que le nombre de parties jouées.<br/>
+	 * <br/>
 	 * Hypothèse : On ne prend pas en compte le fait qu'une partie soit jouée par 2 joueurs (car elle est enregistrée pour les 2 si ce sont des humains). Un jeu a été joué 1 fois si un joueur {@code Humain} y a joué.
 	 * 
 	 * @param joueurs : la map des joueurs de l'application avec pour clé leur pseudo
@@ -414,18 +413,18 @@ public class Menus {
 	public static class Profil {
 		
 		/**
-		 * Création interactive du compte {@code Joueur} en mode CLI.</br>
+		 * Création interactive du compte {@code Joueur} en mode CLI.<br/>
 		 * 
-		 * <ul>
 		 * Elle passe par les étapes suivantes
-		 * <li>Pseudo : nouveau et plus de 3 caractères</li>
-		 * <li>Email : mot1@mot2.extension (extension sera soit com, soit fr, soit org)</li>
-		 * <li>Date de naissance : doit être un format valide (sourtout concernant le mois et le jour)</li>
-		 * <li>Console personnelle : affichage de la liste des consoles disponibles et choix du numéro associé</li>
-		 * </br>
-		 * <li>Récapitulatif : affichage</li>
-		 * <li>Statut : Standard ou Gold (ce statut sera sauvegardé pour plus tard dans le cas d'un enfant)</li>
-		 * <li>Fin : ajout du joueur / recommencer / quitter / erreur</li>
+		 * <ul>
+		 *   <li>Pseudo : nouveau et plus de 3 caractères</li>
+		 *   <li>Email : mot1@mot2.extension (extension sera soit com, soit fr, soit org)</li>
+		 *   <li>Date de naissance : doit être un format valide (sourtout concernant le mois et le jour)</li>
+		 *   <li>Console personnelle : affichage de la liste des consoles disponibles et choix du numéro associé</li>
+		 *   <br/>
+		 *   <li>Récapitulatif : affichage</li>
+		 *   <li>Statut : Standard ou Gold (ce statut sera sauvegardé pour plus tard dans le cas d'un enfant)</li>
+		 *   <li>Fin : ajout du joueur / recommencer / quitter / erreur</li>
 		 * </ul>
 		 * 
 		 * @param joueurs : la map des joueurs de l'application avec pour clé leur pseudo
@@ -584,9 +583,9 @@ public class Menus {
 		}
 		
 		/**
-		 * Connexion d'un joueur à l'application.</br>
-		 * (sans gestion de mot de passe pour l'instant)</br>
-		 * </br>
+		 * Connexion d'un joueur à l'application.<br/>
+		 * (sans gestion de mot de passe pour l'instant)<br/>
+		 * <br/>
 		 * Si lors de la connexion, un enfant a atteint 18 ans, il change de statut et obtient le futur statut qu'il avait enregistré à la création de son compte.
 		 * 
 		 * @param joueurs : la map des joueurs de l'application avec pour clé leur pseudo
@@ -594,43 +593,43 @@ public class Menus {
 		 * @return l'objet {@code Pair<Options, String>} à récupérer pour le bon fonctionnement dans la classe principale
 		 */
 		private static Pair<Options, String> connexion(Map<String, Joueur> joueurs, SortedSet<String> plateformes) {
+			if(joueurs.isEmpty()) {
+				System.out.println("\nAucun joueurs inscrits. Retour à l'écran d'accueil...");
+				resultat.setBoth(Options.ACCUEIL, "");
+				return resultat;
+			}
+			
 			System.out.print("Votre pseudo: ");
 			sc = new Scanner(System.in);
 			String pseudo = sc.nextLine();
-			
-			if(!joueurs.isEmpty()) {
-				while(!joueurs.containsKey(pseudo)) {
-					// Q ne peut pas être un pseudo car il doit contenir au moins 3 caractères
-					if(pseudo.equals("Q")) {
-						resultat.setBoth(Options.ACCUEIL, "");
-						return resultat;
-					}
-					System.out.println(Menus.CHOIX_QUITTER);
-			        System.out.println("Le pseudo est inexistant. Veuillez entrer votre pseudo.");
-			        System.out.print("Pseudo: ");
-					sc = new Scanner(System.in);
-					pseudo = sc.nextLine();
+
+			while(!joueurs.containsKey(pseudo)) {
+				// Q ne peut pas être un pseudo car il doit contenir au moins 3 caractères
+				if(pseudo.equals("Q")) {
+					resultat.setBoth(Options.ACCUEIL, "");
+					return resultat;
 				}
-				
-				if(joueurs.get(pseudo) instanceof Enfant) {
-					if(((Enfant)joueurs.get(pseudo)).aPlusDe18Ans()) {
-						Humain adulte = ((Enfant)joueurs.get(pseudo)).devenirAdulte();
-						joueurs.replace(pseudo, adulte);
-						System.out.println("Vous avez maintenant plus de 18 ans !\nVous pouvez utiliser toutes les fonctionalités disponibles !");
-					}
-				}
-				
-				resultat.setBoth(Options.AFFICHAGE_PROFIL, pseudo);
-					
-			} else {
-				System.out.println("\nAucun joueurs inscrits. Retour à l'écran d'accueil...");
-				resultat.setBoth(Options.ACCUEIL, "");
+				System.out.println(Menus.CHOIX_QUITTER);
+		        System.out.println("Le pseudo est inexistant. Veuillez entrer votre pseudo.");
+		        System.out.print("Pseudo: ");
+				sc = new Scanner(System.in);
+				pseudo = sc.nextLine();
 			}
+			
+			if(joueurs.get(pseudo) instanceof Enfant) {
+				if(((Enfant)joueurs.get(pseudo)).aPlusDe18Ans()) {
+					Humain adulte = ((Enfant)joueurs.get(pseudo)).devenirAdulte();
+					joueurs.replace(pseudo, adulte);
+					System.out.println("Vous avez maintenant plus de 18 ans !\nVous pouvez utiliser toutes les fonctionalités disponibles !");
+				}
+			}
+			
+			resultat.setBoth(Options.AFFICHAGE_PROFIL, pseudo);
 			return resultat;
 		}
 		
 		/**
-		 * Accueil interactif du joueur.</br>
+		 * Accueil interactif du joueur.<br/>
 		 * (choix entre création de compte / connexion / quitter l'application)
 		 * 
 		 * @param joueurs : la map des joueurs de l'application avec pour clé leur pseudo
@@ -666,9 +665,9 @@ public class Menus {
 		}
 		
 		/**
-		 * Affichage du profil privé d'un joueur et menus du choix de la prochaine action.</br>
-		 * </br>
-		 * Affichage du titre de chaque {@code Options} (s'il elle est censé apparaitre dans ce menu)</br>
+		 * Affichage du profil privé d'un joueur et menus du choix de la prochaine action.<br/>
+		 * <br/>
+		 * Affichage du titre de chaque {@code Options} (s'il elle est censé apparaitre dans ce menu)<br/>
 		 * Choix par le joueur d'une des options.
 		 * 
 		 * @param joueurs : la map des joueurs de l'application avec pour clé leur pseudo
@@ -755,7 +754,7 @@ public class Menus {
 	}
 	
 	/**
-	 * Tout ce qui concerne les interactions entre le {@code Joueur} et d'autres joueurs.</br>
+	 * Tout ce qui concerne les interactions entre le {@code Joueur} et d'autres joueurs.<br/>
 	 * (inscription de son enfant, ajout d'un ami, suppression d'un ami, offre d'un jeu à un ami)
 	 * 
 	 * @author Nicolas Vrignaud
@@ -766,12 +765,12 @@ public class Menus {
 	public static class Interactions {
 		
 		/**
-		 * Inscription interactive par le parent 1 de son {@code Enfant}.</br>
-		 * Ajout réciproque à la liste d'amis (si impossible, exception).</br>
-		 * Choix d'un parent 2.</br>
-		 * </br>
-		 * Hypothèses :</br>
-		 * On suppose qu'après inscription, sa liste de parents/tuteurs ne peut pas être modifée (elle contient donc soit 1 soit 2 Joueurs).</br>
+		 * Inscription interactive par le parent 1 de son {@code Enfant}.<br/>
+		 * Ajout réciproque à la liste d'amis (si impossible, exception).<br/>
+		 * Choix d'un parent 2.<br/>
+		 * <br/>
+		 * Hypothèses :<br/>
+		 * On suppose qu'après inscription, sa liste de parents/tuteurs ne peut pas être modifée (elle contient donc soit 1 soit 2 Joueurs).<br/>
 		 * On suppose (pour l'instant) qu'un parent ne peut plus mentionner son enfant s'il s'inscrit après lui (cas du 2e parent).
 		 * 
 		 * @param joueurs : la map des joueurs de l'application avec pour clé leur pseudo
@@ -841,12 +840,14 @@ public class Menus {
 		}
 		
 		/**
-		 * Ajout interactive d'un ami dans sa liste d'amis.</br>
-		 * </br>
-		 * Il faut bien sûr que le pseudo existe et que l'ami puisse être ajouté (réciproquement).</br>
-		 * Un enfant ne peut pas retirer un parent/tuteur de sa liste d'amis (et inversement).</br>
-		 * Une liste d'ami peut être complète, et donc propager une exception.</br>
-		 * La demande est forcément acceptée par le futur ami.
+		 * Ajout interactive d'un ami dans sa liste d'amis.<br/>
+		 * <br/>
+		 * Il faut bien sûr que le pseudo existe et que l'ami puisse être ajouté (réciproquement).<br/>
+		 * Un enfant ne peut pas retirer un parent/tuteur de sa liste d'amis (et inversement).<br/>
+		 * Une liste d'ami peut être complète, et donc propager une exception.<br/>
+		 * La demande est forcément acceptée par le futur ami.<br/>
+		 * <br/>
+		 * Hypothèse : Le joueur connait le pseudo de son ami, donc aucune liste ou classement n'est affiché ici (une liste sera affichée si disponible et si aucun de nos amis ne peut jouer avec nous à un jeu précis).
 		 * 
 		 * @param joueurs : la map des joueurs de l'application avec pour clé leur pseudo
 		 * @param joueurActif : le pseudo du joueur actif au moment de l'appel de la fonction
@@ -912,8 +913,8 @@ public class Menus {
 		}
 		
 		/**
-		 * Suppression d'un ami de sa liste d'amis.</br>
-		 * </br>
+		 * Suppression d'un ami de sa liste d'amis.<br/>
+		 * <br/>
 		 * La suppression est réciproque et se fait sans attente d'une confirmation de la part de l'ami.
 		 * 
 		 * @param joueurs : la map des joueurs de l'application avec pour clé leur pseudo
@@ -971,11 +972,11 @@ public class Menus {
 		}
 		
 		/**
-		 * Offre interactive d'un jeu à un ami.</br>
-		 * </br>
-		 * - Affichage des jeux possédés (fonction dédiée)</br>
-		 * - Affichage des détails du jeu choisi (selon son rang)</br>
-		 * - Offre du jeu à un ami ? O/N</br>
+		 * Offre interactive d'un jeu à un ami.<br/>
+		 * <br/>
+		 * - Affichage des jeux possédés (fonction dédiée)<br/>
+		 * - Affichage des détails du jeu choisi (selon son rang)<br/>
+		 * - Offre du jeu à un ami ? O/N<br/>
 		 * - Offre du jeu (sauf si exception ou refus)
 		 * 
 		 * @param joueurs : la map des joueurs de l'application avec pour clé leur pseudo
@@ -1098,8 +1099,8 @@ public class Menus {
 	}
 	
 	/**
-	 * Tout ce qui concerne les changements de console d'un {@code Joueur}.</br>
-	 * (ajout d'une nouvelle console, suppression d'une console qui ne marche plus)</br>
+	 * Tout ce qui concerne les changements de console d'un {@code Joueur}.<br/>
+	 * (ajout d'une nouvelle console, suppression d'une console qui ne marche plus)<br/>
 	 * Pour plus de facilités, ces 2 fonctionalités sont inclues dans une 3e fonction qui laisse l'utilisateur choisir entre les 2.
 	 * 
 	 * @author Nicolas Vrignaud
@@ -1108,11 +1109,11 @@ public class Menus {
 	 */
 	public static class Consoles {
 		/**
-		 * Ajout d'une nouvelle console à celles qu'on possède parmi celles disponibles.</br>
-		 * </br>
-		 * - Affichage des consoles disponibles</br>
-		 * - Choix du numéro associé</br>
-		 * - Ajout à la liste des consoles</br>
+		 * Ajout d'une nouvelle console à celles qu'on possède parmi celles disponibles.<br/>
+		 * <br/>
+		 * - Affichage des consoles disponibles<br/>
+		 * - Choix du numéro associé<br/>
+		 * - Ajout à la liste des consoles<br/>
 		 * 
 		 * @param joueurs : la map des joueurs de l'application avec pour clé leur pseudo
 		 * @param plateformes : le set des plateformes de jeu disponibles
@@ -1173,7 +1174,7 @@ public class Menus {
 		}
 		
 		/**
-		 * Suppression de l'une de ses consoles selon le numéro associé.</br>
+		 * Suppression de l'une de ses consoles selon le numéro associé.<br/>
 		 * (si on n'a pas de consoles, la fonction retourne directement une valeur)
 		 * 
 		 * @param joueurs : la map des joueurs de l'application avec pour clé leur pseudo
@@ -1243,7 +1244,7 @@ public class Menus {
 		}
 		
 		/**
-		 * Gestion interactif des consoles du joueur.</br>
+		 * Gestion interactif des consoles du joueur.<br/>
 		 * (choix entre ajout / suppression)
 		 * 
 		 * @param joueurs : la map des joueurs de l'application avec pour clé leur pseudo
@@ -1278,7 +1279,7 @@ public class Menus {
 	}
 	
 	/**
-	 * Tout ce qui concerne les collections de {@code Jeu}.</br>
+	 * Tout ce qui concerne les collections de {@code Jeu}.<br/>
 	 * (affichage d'une liste de jeux et affichage des détails sur un jeu)
 	 * 
 	 * @author Nicolas Vrignaud
@@ -1287,7 +1288,7 @@ public class Menus {
 	 */
 	public static class CollectionJeux {
 		/**
-		 * Affiche la liste des jeux en paramètres.</br>
+		 * Affiche la liste des jeux en paramètres.<br/>
 		 * (par plateforme ou par genre selon le choix de l'utilisateur)
 		 * 
 		 * @param jeux : collection de jeux
@@ -1370,7 +1371,7 @@ public class Menus {
 		}
 		
 		/**
-		 * Affichage des détails d'un {@code Jeu} d'une collection selon son rang.</br>
+		 * Affichage des détails d'un {@code Jeu} d'une collection selon son rang.<br/>
 		 * 
 		 * @param jeux : collection de jeux
 		 * @param joueurActif : le pseudo du joueur actif au moment de l'appel de la fonction
@@ -1417,7 +1418,7 @@ public class Menus {
 	}
 	
 	/**
-	 * Tout ce qui concerne l'achat d'un {@code Jeu}.</br>
+	 * Tout ce qui concerne l'achat d'un {@code Jeu}.<br/>
 	 * (achat d'un jeu qui passe par les fonctions d'affichage de jeux)
 	 * 
 	 * @author Nicolas Vrignaud
@@ -1427,11 +1428,11 @@ public class Menus {
 	 */
 	public static class Boutique {
 		/**
-		 * Achat interactif d'un jeu dans la boutique.</br>
-		 * </br>
-		 * - Affichage des jeux disponibles (fonction dédiée)</br>
-		 * - Affichage des détails du jeu choisi (selon son rang)</br>
-		 * - Achat du jeu ? O/N</br>
+		 * Achat interactif d'un jeu dans la boutique.<br/>
+		 * <br/>
+		 * - Affichage des jeux disponibles (fonction dédiée)<br/>
+		 * - Affichage des détails du jeu choisi (selon son rang)<br/>
+		 * - Achat du jeu ? O/N<br/>
 		 * - Achat (sauf si exception ou refus, plus de place dans la collection de jeux par exemple)
 		 * 
 		 * @param joueurs : la map des joueurs de l'application avec pour clé leur pseudo
@@ -1516,7 +1517,7 @@ public class Menus {
 	}	
 	
 	/**
-	 * Tout ce qui concerne les amis d'un {@code Joueur}.</br>
+	 * Tout ce qui concerne les amis d'un {@code Joueur}.<br/>
 	 * (affichage de sa liste d'amis, affichage des détails publiques sur un joueur)
 	 * 
 	 * @author Nicolas Vrignaud
@@ -1544,7 +1545,13 @@ public class Menus {
 				return resultat;
 			}
 			for(String pseudo : joueurs.get(joueurActif).getAmis()) {
-				System.out.println("- " + pseudo);
+				System.out.print("- " + pseudo);
+				if(joueurs.get(joueurActif) instanceof Enfant) {
+					if(((Enfant)joueurs.get(joueurActif)).getPseudosParents()[0].equals(pseudo) || ((Enfant)joueurs.get(joueurActif)).getPseudosParents()[1].equals(pseudo) ) {
+						System.out.print(" (parent/tuteur)");
+					}
+				}
+				System.out.print("\n");
 			}
 			System.out.print("\n");
 			resultat.setBoth(Options.DETAILS_PUBLIQUES_AMIS, joueurActif);
@@ -1552,7 +1559,7 @@ public class Menus {
 		}
 		
 		/**
-		 * Affichage des détails publiques de l'un de nos amis.</br>
+		 * Affichage des détails publiques de l'un de nos amis.<br/>
 		 * (recherche par pseudo)
 		 * 
 		 * @param joueurs : la map des joueurs de l'application avec pour clé leur pseudo
@@ -1598,7 +1605,7 @@ public class Menus {
 	}
 	
 	/**
-	 * Tout ce qui concerne une partie multijoueurs (2 joueurs).</br>
+	 * Tout ce qui concerne une partie multijoueurs (2 joueurs).<br/>
 	 * (jouer à une partie multijoueurs)
 	 * 
 	 * @author Nicolas Vrignaud
@@ -1608,11 +1615,11 @@ public class Menus {
 	public static class PartieMulti {
 		
 		/**
-		 * Permet à un utilisateur de jouer en mode multijoueurs (2 joueurs) avec un ami ou un bot, au choix.</br>
-		 * Si aucun ami ou aucun bot ne peut jouer à ce jeu, on affiche la liste des 10 (maximum) joueurs pouvant jouer avec nous à ce jeu et que l'on peut inviter pour jouer.</br>
-		 * Si la partie peut être jouée (suppose qu'on ai encore des parties quotidiennes disponibles), les résultats sont affichés et enregistrés dans chacune des listes de parties des joueurs (sauf s'il s'agit d'un bot).</br>
-		 * </br>
-		 * Hypothèse : On suppose qu'un bot n'a pas besoin d'être ami avec le joueur pour jouer.</br>
+		 * Permet à un utilisateur de jouer en mode multijoueurs (2 joueurs) avec un ami ou un bot, au choix.<br/>
+		 * Si aucun ami ou aucun bot ne peut jouer à ce jeu, on affiche la liste des 10 (maximum) joueurs pouvant jouer avec nous à ce jeu et que l'on peut inviter pour jouer.<br/>
+		 * Si la partie peut être jouée (suppose qu'on ai encore des parties quotidiennes disponibles), les résultats sont affichés et enregistrés dans chacune des listes de parties des joueurs (sauf s'il s'agit d'un bot).<br/>
+		 * <br/>
+		 * Hypothèse : On suppose qu'un bot n'a pas besoin d'être ami avec le joueur pour jouer.<br/>
 		 * (ce n'est pas un vrai joueur et cela rendrait la gestion des amis pénible pour les joueurs ayant un nombre d'amis limités)
 		 * 
 		 * @param joueurs : la map des joueurs de l'application avec pour clé leur pseudo
@@ -1772,7 +1779,7 @@ public class Menus {
 						// Pas d'ami pouvant jouer / Pas de module d'IA disponible : on propose un choix et on affiche les (10 MAX) joueurs les plus appropriés à inviter pour jouer
 						try {
 							Set<String> amisAptes = Menus.listeJoueursAdaptesPourJouer(joueurs, Jeu.trouverJeuSelonRang(jeux, indexJeu), joueurActif, 10);
-							System.out.println("Invitez un de ces joueurs en tant qu'ami pour pouvoir jouer avec un vrai joueur. Sinon, vous pouvez toujours jouer avec un bot.");
+							System.out.println("Invitez un de ces joueurs en tant qu'ami pour pouvoir jouer avec un vrai joueur.\nSinon, vous pouvez toujours jouer avec un bot.");
 							for(String a : amisAptes) {
 								System.out.println("- " + joueurs.get(a).getPseudo());
 							}
@@ -1802,7 +1809,7 @@ public class Menus {
 	}
 	
 	/**
-	 * Tout ce qui concerne les statistiques.</br>
+	 * Tout ce qui concerne les statistiques.<br/>
 	 * (affichage des statistiques d'un {@code Joueur}, affichage du classment des joueurs et des jeux)
 	 * 
 	 * @author Nicolas Vrignaud
@@ -1811,11 +1818,11 @@ public class Menus {
 	 */
 	public static class Statistiques {
 		/**
-		 * Permet à un joueur de voir ses statistiques personnelles.</br>
-		 * </br>
-		 * - Choix entre ses parties jouées aujourd'hui, ses parties d'un jour à choisir, et sa proportion de victoires/défaites.</br>
-		 * - Affichage de la liste des parties avec les détails pour chacune (si partie il y a).</br>
-		 * - Respectivement, affichage de la proportion de victoires/défaites et du pourcentage de victoires.</br>
+		 * Permet à un joueur de voir ses statistiques personnelles.<br/>
+		 * <br/>
+		 * - Choix entre ses parties jouées aujourd'hui, ses parties d'un jour à choisir, et sa proportion de victoires/défaites.<br/>
+		 * - Affichage de la liste des parties avec les détails pour chacune (si partie il y a).<br/>
+		 * - Respectivement, affichage de la proportion de victoires/défaites et du pourcentage de victoires.<br/>
 		 * - Retour direct au profil du {@code Joueur} après affichage.
 		 * 
 		 * @param joueurs : la map des joueurs de l'application avec pour clé leur pseudo
@@ -1896,7 +1903,7 @@ public class Menus {
 				double pv = ((Humain)joueurs.get(joueurActif)).pourcentageDeVictoire();
 				System.out.print(Menus.SEPARATEUR);
 				System.out.println("Proportion victoires/défaites : " + vd.getFirst() + "/" + vd.getSecond());
-				System.out.println("Pourcentage de victoires : " + pv);
+				System.out.println("Pourcentage de victoires : " + pv + " %");
 				System.out.print(Menus.SEPARATEUR);
 				break;
 			default:

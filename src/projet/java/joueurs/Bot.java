@@ -6,7 +6,7 @@ import projet.java.err.plusDePlace.PlusDePlaceCollectionJeuxException;
 import projet.java.jeux.Jeu;
 
 /**
- * Classe représentant un {@code Bot}.</br>
+ * Classe représentant un {@code Bot}.<br/>
  * Un bot n'est créé que lorsque nécessaire.
  * 
  * @author Nicolas Vrignaud

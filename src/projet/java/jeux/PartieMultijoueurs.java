@@ -8,8 +8,8 @@ import projet.java.joueurs.Bot;
 import projet.java.joueurs.Humain;
 
 /**
- * Classe modèle d'une partie multijoueurs entre 2 joueurs.</br>
- * Contient aussi le jeu auquel ils vont jouer, ainsi que les pseudos du gagnant et du perdant.</br>
+ * Classe modèle d'une partie multijoueurs entre 2 joueurs.<br/>
+ * Contient aussi le jeu auquel ils vont jouer, ainsi que les pseudos du gagnant et du perdant.<br/>
  * joueurs[0] doit être le joueur qui demande à jouer, et joueurs[1] doit être son ami ou un bot.
  * 
  * @author Nicolas Vrignaud
@@ -40,10 +40,10 @@ public class PartieMultijoueurs {
 	}
 	
 	/**
-	 * On vérifie si la partie est possible entre les 2 joueurs {@code Humain} :</br>
-	 * - Sont-ils amis réciproquement ?</br>
-	 * - Joueur1 a-t-il le jeu en question et la console qui lui permet-il de jouer à son propre jeu ?</br>
-	 * - Joueur2 a-t-il le jeu, indépendamment de la console de Joueur1, et sa console lui permet-il de jouer à son propre jeu ?</br>
+	 * On vérifie si la partie est possible entre les 2 joueurs {@code Humain} :<br/>
+	 * - Sont-ils amis réciproquement ?<br/>
+	 * - Joueur1 a-t-il le jeu en question et la console qui lui permet-il de jouer à son propre jeu ?<br/>
+	 * - Joueur2 a-t-il le jeu, indépendamment de la console de Joueur1, et sa console lui permet-il de jouer à son propre jeu ?<br/>
 	 * 
 	 * @return la partie entre 2 joueurs {@code Humain} est-elle possible ?
 	 * 
@@ -83,8 +83,8 @@ public class PartieMultijoueurs {
 	}
 	
 	/**
-	 * On vérifie si la partie est possible entre les 2 joueurs, 1 {@code Humain} et 1 {@code Bot} :</br>
-	 * - Joueur1 a-t-il le jeu en question et la console qui lui permet-il de jouer à son propre jeu ?</br>
+	 * On vérifie si la partie est possible entre les 2 joueurs, 1 {@code Humain} et 1 {@code Bot} :<br/>
+	 * - Joueur1 a-t-il le jeu en question et la console qui lui permet-il de jouer à son propre jeu ?<br/>
 	 * - Le jeu contient-il un module d'IA disponible ? (on regarde l'année à partir de laquelle les modules d'IA sont disponibles)
 	 * 
 	 * @return la partie entre 2 joueurs, 1 {@code Humain} et 1 {@code Bot} est-elle possible ?
@@ -115,8 +115,8 @@ public class PartieMultijoueurs {
 	}
 	
 	/**
-	 * Jeu joué par les 2 joueurs pour déterminer qui est le gagant et qui es le perdant.</br>
-	 * </br>
+	 * Jeu joué par les 2 joueurs pour déterminer qui est le gagant et qui es le perdant.<br/>
+	 * <br/>
 	 * Hypothèse : il n'y a jamais de match nul.
 	 */
 	private void jouer() {

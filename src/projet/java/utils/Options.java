@@ -1,25 +1,25 @@
 package projet.java.utils;
 
 /**
- * Enumération qui récapitule les fonctionnalités les plus importantes de l'application.</br>
- * Utilisée principalement dans {@code Menus} et {@code App}, pour la liaison entre les 2 classes.</br>
- * </br>
- * Paramètres:</br>
+ * Enumération qui récapitule les fonctionnalités les plus importantes de l'application.<br/>
+ * Utilisée principalement dans {@code Menus} et {@code App}, pour la liaison entre les 2 classes.<br/>
+ * <br/>
+ * Paramètres:<br/>
  * <ul>
- * <li>String titre : s'affiche dans le menu principal du joueur selon la valeur de {@code estDansMenu}</li>
- * <li>int numero : le numéro qui s'affiche dans le menu principal et permet le choix d'une option</li>
- * <li>int numeroEnfant : idem mais pour les joueurs {@code Enfant}</li>
- * <li>boolean estDansMenu : indique si l'option doit apparaitre dans le menu principal ou non</li>
- * <li>boolean estAutoriseAuxEnfants : indique si l'option de menu doit apparaitre pour un enfant ou non</li>
+ *   <li>String titre : s'affiche dans le menu principal du joueur selon la valeur de {@code estDansMenu}</li>
+ *   <li>int numero : le numéro qui s'affiche dans le menu principal et permet le choix d'une option</li>
+ *   <li>int numeroEnfant : idem mais pour les joueurs {@code Enfant}</li>
+ *   <li>boolean estDansMenu : indique si l'option doit apparaitre dans le menu principal ou non</li>
+ *   <li>boolean estAutoriseAuxEnfants : indique si l'option de menu doit apparaitre pour un enfant ou non</li>
  * </ul>
  * 
- * </br>
- * L'énum possède aussi:</br>
- * - 2 classes internes statiques qui font office de compteur (respectivement pour les adultes et les enfants).</br>
- * - 2 constructeurs, avec en paramètres juste un titre si l'option apparait dans le menu et est autorisée aux enfants. Sinon, on spécifie ces 2 variables en paramètres.</br>
- * - 2 fonctions pour trouver l'option en fonction de l'index (respectivement pour les adultes et les enfants).</br>
- * - les getters et setters appropriés.</br>
- * </br>
+ * <br/>
+ * L'énum possède aussi:<br/>
+ * - 2 classes internes statiques qui font office de compteur (respectivement pour les adultes et les enfants).<br/>
+ * - 2 constructeurs, avec en paramètres juste un titre si l'option apparait dans le menu et est autorisée aux enfants. Sinon, on spécifie ces 2 variables en paramètres.<br/>
+ * - 2 fonctions pour trouver l'option en fonction de l'index (respectivement pour les adultes et les enfants).<br/>
+ * - les getters et setters appropriés.<br/>
+ * <br/>
  * 
  * @author Nicolas Vrignaud
  *

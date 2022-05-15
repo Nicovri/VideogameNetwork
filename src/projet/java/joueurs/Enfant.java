@@ -48,7 +48,7 @@ public class Enfant extends Humain {
 	}
 	
 	/**
-	 * Inscription de l'enfant par son parent : ajoute le pseudo du parent dans le tableau des parents et ajout respectif dans la liste d'amis
+	 * Inscription de l'enfant par son parent : ajoute le pseudo du parent dans le tableau des parents et ajout respectif dans la liste d'amis.
 	 * 
 	 * @param parent1Ou2 : est-ce le parent 1 ou 2 (si autre chose, la méthode ajouterAmi rendra une erreur)
 	 * @param parent : joueur parent/tuteur
@@ -140,7 +140,7 @@ public class Enfant extends Humain {
 	}
 	
 	/**
-	 * Conversion d'un joueur {@code Enfant} en un joueur {@code Standard} ou {@code Gold}, selon la valeur de la donnée memebre {@code futurStatut}.</br>
+	 * Conversion d'un joueur {@code Enfant} en un joueur {@code Standard} ou {@code Gold}, selon la valeur de la donnée memebre {@code futurStatut}.<br/>
 	 * Les données correspondantes sont conservées dans la limite du possible (ex : les amis encore enfants vont disparaitre car un adulte ne peut pas être ami avec des enfants si il n'est pas un de leurs parent)
 	 * 
 	 * @return le joueur adulte correspondant

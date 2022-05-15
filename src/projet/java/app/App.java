@@ -28,7 +28,7 @@ import projet.java.utils.Options;
 import projet.java.utils.Pair;
 
 /**
- * Classe principale de l'application.</br>
+ * Classe principale de l'application.<br/>
  * Arguments par défaut pour les tests : https://raw.githubusercontent.com/stef-aramp/video_games_sales/master/vgsales.csv 1
  * 
  * @author Nicolas Vrignaud
@@ -52,10 +52,10 @@ public class App {
 	 * Constructeur de la classe App.
 	 * 
 	 * <ul>
-	 * <li>Parse le fichier CSV des jeux disponibles lors de la création de l'application.</li>
-	 * <li>Stocke les données sous forme de {@code Jeu} dans la variable dataJeux.</li>
-	 * <li>Stocke les plateformes et les categories dans les variables du même nom.</li>
-	 * <li>(Eventuellement, initialise des joueurs pour éviter d'avoir à tout refaire à chaque démarrage)</li>
+	 *   <li>Parse le fichier CSV des jeux disponibles lors de la création de l'application.</li>
+	 *   <li>Stocke les données sous forme de {@code Jeu} dans la variable dataJeux.</li>
+	 *   <li>Stocke les plateformes et les categories dans les variables du même nom.</li>
+	 *   <li>(Eventuellement, initialise des joueurs pour éviter d'avoir à tout refaire à chaque démarrage)</li>
 	 * </ul>
 	 * 
 	 * @param dataURL : URL du fichier CSV à parser
@@ -143,15 +143,17 @@ public class App {
 	/**
 	 * Structure d'exécution de l'application.
 	 * 
-	 * @param args :</br>
+	 * @param args :<br/>
 	 * <ul>
-	 * <li>args[0] est l'URL du fichier CSV de jeux à parser</li>
-	 * <li>args[1] est le mode d'affichage de l'application</li>
-	 * <ul>
-	 * <li>1 pour CLI</li>
-	 * <li>2 pour JavaFX (pas encore disponible)</li>
-	 * <li>Un autre nombre ne lancera pas l'application</li>
-	 * </ul>
+	 *   <li>args[0] est l'URL du fichier CSV de jeux à parser</li>
+	 *   <li>args[1] est le mode d'affichage de l'application</li>
+	 *   <li>
+	 *     <ul>
+	 *       <li>1 pour CLI</li>
+	 *       <li>2 pour JavaFX (pas encore disponible)</li>
+	 *       <li>Un autre nombre ne lancera pas l'application</li>
+	 *     </ul>
+	 *   </li>
 	 * </ul>
 	 * 
 	 * En mode CLI, chaque fonction utilisée retourne une valeur pour la variable parametres.
